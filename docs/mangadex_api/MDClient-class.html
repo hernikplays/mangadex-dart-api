@@ -167,6 +167,19 @@
 
 </dd>
 
+        <dt id="getCovers" class="callable">
+  <span class="name"><a href="../mangadex_api/MDClient/getCovers.html">getCovers</a></span><span class="signature">(<wbr><span class="parameter" id="getCovers-param-mangaUuid"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.13.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">mangaUuid</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/2.13.4/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/2.13.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/2.13.4/dart-core/String-class.html">String</a></span>&gt;</span>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Gets <code>10</code> of available cover images for a manga <a href="../mangadex_api/MDClient/getCovers.html">[...]</a>
+  
+
+</dd>
+
         <dt id="getMangaInfo" class="callable">
   <span class="name"><a href="../mangadex_api/MDClient/getMangaInfo.html">getMangaInfo</a></span><span class="signature">(<wbr><span class="parameter" id="getMangaInfo-param-uuid"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.13.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">uuid</span>, </span><span class="parameter" id="getMangaInfo-param-appendChapters">{<span class="type-annotation"><a href="https://api.dart.dev/stable/2.13.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">appendChapters</span> = <span class="default-value">false</span>, </span><span class="parameter" id="getMangaInfo-param-translatedLang"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.13.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/2.13.4/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">translatedLang</span> = <span class="default-value">const []</span>}</span>)
     <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/2.13.4/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mangadex_api/Manga-class.html">Manga</a>?</span>&gt;</span></span>
@@ -215,6 +228,19 @@
 </dt>
 <dd>
   Refreshes the auth token using the saved refresh token 
+  
+
+</dd>
+
+        <dt id="search" class="callable">
+  <span class="name"><a href="../mangadex_api/MDClient/search.html">search</a></span><span class="signature">(<wbr><span class="parameter" id="search-param-mangaTitle">{<span class="type-annotation"><a href="https://api.dart.dev/stable/2.13.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">mangaTitle</span> = <span class="default-value">&#39;&#39;</span>, </span><span class="parameter" id="search-param-authors"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.13.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/2.13.4/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">authors</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="search-param-includedTags"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.13.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/2.13.4/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">includedTags</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="search-param-excludedTags"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.13.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/2.13.4/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">excludedTags</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="search-param-status"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.13.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/2.13.4/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">status</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="search-param-demographic"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.13.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/2.13.4/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">demographic</span> = <span class="default-value">const []</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/2.13.4/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/2.13.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mangadex_api/Manga-class.html">Manga</a></span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Search for manga <a href="../mangadex_api/MDClient/search.html">[...]</a>
   
 
 </dd>
@@ -289,10 +315,12 @@
 
     <li class="section-title"><a href="../mangadex_api/MDClient-class.html#instance-methods">Methods</a></li>
     <li><a href="../mangadex_api/MDClient/getChapter.html">getChapter</a></li>
+    <li><a href="../mangadex_api/MDClient/getCovers.html">getCovers</a></li>
     <li><a href="../mangadex_api/MDClient/getMangaInfo.html">getMangaInfo</a></li>
     <li><a href="../mangadex_api/MDClient/login.html">login</a></li>
     <li class="inherited"><a href="https://api.dart.dev/stable/2.13.4/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
     <li><a href="../mangadex_api/MDClient/refreshToken.html">refreshToken</a></li>
+    <li><a href="../mangadex_api/MDClient/search.html">search</a></li>
     <li><a href="../mangadex_api/MDClient/solveCaptcha.html">solveCaptcha</a></li>
     <li class="inherited"><a href="https://api.dart.dev/stable/2.13.4/dart-core/Object/toString.html">toString</a></li>
 
@@ -311,7 +339,7 @@
 <footer>
   <span class="no-break">
     mangadex_api
-      1.0.0
+      1.0.0-dev.1
   </span>
 
   

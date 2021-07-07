@@ -74,10 +74,12 @@
 
     <li class="section-title"><a href="../../mangadex_api/MDClient-class.html#instance-methods">Methods</a></li>
     <li><a href="../../mangadex_api/MDClient/getChapter.html">getChapter</a></li>
+    <li><a href="../../mangadex_api/MDClient/getCovers.html">getCovers</a></li>
     <li><a href="../../mangadex_api/MDClient/getMangaInfo.html">getMangaInfo</a></li>
     <li><a href="../../mangadex_api/MDClient/login.html">login</a></li>
     <li class="inherited"><a href="https://api.dart.dev/stable/2.13.4/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
     <li><a href="../../mangadex_api/MDClient/refreshToken.html">refreshToken</a></li>
+    <li><a href="../../mangadex_api/MDClient/search.html">search</a></li>
     <li><a href="../../mangadex_api/MDClient/solveCaptcha.html">solveCaptcha</a></li>
     <li class="inherited"><a href="https://api.dart.dev/stable/2.13.4/dart-core/Object/toString.html">toString</a></li>
 
@@ -125,7 +127,13 @@ If appending chapters, <code>translatedLang</code> should be either an empty <a 
   <pre class="language-dart"><code class="language-dart">Future&lt;Manga?&gt; getMangaInfo(String uuid,
     {bool appendChapters = false,
     List&lt;String&gt; translatedLang = const []}) async {
-  var res = await http.get(Uri.parse(&#39;https:&#47;&#47;api.mangadex.org&#47;manga&#47;$uuid&#39;));
+  var res;
+  if (token != &#39;&#39;) {
+    res = await http.get(Uri.parse(&#39;https:&#47;&#47;api.mangadex.org&#47;manga&#47;$uuid&#39;),
+        headers: {HttpHeaders.authorizationHeader: &#39;Bearer $token&#39;});
+  } else {
+    res = await http.get(Uri.parse(&#39;https:&#47;&#47;api.mangadex.org&#47;manga&#47;$uuid&#39;));
+  }
 
   var data = jsonDecode(res.body)[&#39;data&#39;];
 
@@ -137,13 +145,16 @@ If appending chapters, <code>translatedLang</code> should be either an empty <a 
         .get(Uri.parse(&#39;https:&#47;&#47;api.mangadex.org&#47;manga&#47;$uuid&#47;aggregate&#39;));
     chapters = Map.from(jsonDecode(chres.body)[&#39;volumes&#39;]);
   }
+  var covers = await getCovers(uuid);
   var manga = Manga(
       altTitles: data[&#39;attributes&#39;][&#39;altTitles&#39;],
       title: Map.from(data[&#39;attributes&#39;][&#39;title&#39;]),
       tags: data[&#39;attributes&#39;][&#39;tags&#39;],
       description: Map.from(data[&#39;attributes&#39;][&#39;description&#39;]),
       isLocked: data[&#39;attributes&#39;][&#39;isLocked&#39;],
-      links: Map.from(data[&#39;attributes&#39;][&#39;links&#39;]),
+      links: (data[&#39;attributes&#39;][&#39;links&#39;] == null)
+          ? null
+          : Map.from(data[&#39;attributes&#39;][&#39;links&#39;]),
       originalLang: data[&#39;attributes&#39;][&#39;originalLanguage&#39;],
       lastChapter: data[&#39;attributes&#39;][&#39;lastChapter&#39;],
       lastVolume: data[&#39;attributes&#39;][&#39;lastVolume&#39;],
@@ -154,7 +165,8 @@ If appending chapters, <code>translatedLang</code> should be either an empty <a 
       createdAt: data[&#39;attributes&#39;][&#39;createdAt&#39;],
       updatedAt: data[&#39;attributes&#39;][&#39;updatedAt&#39;],
       id: data[&#39;id&#39;],
-      chapters: chapters);
+      chapters: chapters,
+      covers: covers!);
   return manga;
 }</code></pre>
 </section>
@@ -170,7 +182,7 @@ If appending chapters, <code>translatedLang</code> should be either an empty <a 
 <footer>
   <span class="no-break">
     mangadex_api
-      1.0.0
+      1.0.0-dev.1
   </span>
 
   
