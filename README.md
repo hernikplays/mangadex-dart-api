@@ -28,12 +28,12 @@ Currently if you login, **all** requests will be done with your token.
 - Get Chapters
 - Get Manga
 - Get cover
+- Manga search
 
 ## What's NOT yet implemented
 - Captcha
 - Get user
 - Get group
-- Manga search
 
 ## Features and bugs
 
