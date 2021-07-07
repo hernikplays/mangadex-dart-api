@@ -12,10 +12,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  
-  <link rel="stylesheet" href="../../static-assets/github.css?v1">
-  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
-  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  <link rel="stylesheet" href="../../static-assets/github.css">
+  <link rel="stylesheet" href="../../static-assets/styles.css">
+  <link rel="icon" href="../../static-assets/favicon.png">
 
   
 </head>
@@ -43,6 +42,55 @@
 <main>
 
 
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../../index.html">mangadex_api</a></li>
+  <li><a href="../../mangadex_api/mangadex_api-library.html">mangadex_api</a></li>
+  <li><a href="../../mangadex_api/MDClient-class.html">MDClient</a></li>
+  <li class="self-crumb">login method</li>
+</ol>
+
+
+    <h5>MDClient class</h5>
+    <ol>
+
+    <li class="section-title"><a href="../../mangadex_api/MDClient-class.html#constructors">Constructors</a></li>
+    <li><a href="../../mangadex_api/MDClient/MDClient.html">MDClient</a></li>
+
+
+    <li class="section-title">
+      <a href="../../mangadex_api/MDClient-class.html#instance-properties">Properties</a>
+    </li>
+    <li class="inherited"><a href="https://api.dart.dev/stable/2.13.4/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li><a href="../../mangadex_api/MDClient/refresh.html">refresh</a></li>
+    <li class="inherited"><a href="https://api.dart.dev/stable/2.13.4/dart-core/Object/runtimeType.html">runtimeType</a></li>
+    <li><a href="../../mangadex_api/MDClient/token.html">token</a></li>
+
+    <li class="section-title"><a href="../../mangadex_api/MDClient-class.html#instance-methods">Methods</a></li>
+    <li><a href="../../mangadex_api/MDClient/getChapter.html">getChapter</a></li>
+    <li><a href="../../mangadex_api/MDClient/getMangaInfo.html">getMangaInfo</a></li>
+    <li><a href="../../mangadex_api/MDClient/login.html">login</a></li>
+    <li class="inherited"><a href="https://api.dart.dev/stable/2.13.4/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li><a href="../../mangadex_api/MDClient/refreshToken.html">refreshToken</a></li>
+    <li><a href="../../mangadex_api/MDClient/solveCaptcha.html">solveCaptcha</a></li>
+    <li class="inherited"><a href="https://api.dart.dev/stable/2.13.4/dart-core/Object/toString.html">toString</a></li>
+
+    <li class="section-title inherited"><a href="../../mangadex_api/MDClient-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.dart.dev/stable/2.13.4/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
   <div id="dartdoc-main-content" class="main-content">
       <div>
 <h1><span class="kind-method">login</span> method 
@@ -53,8 +101,8 @@
       
 
 <span class="returntype">void</span>
-<span class="name ">login</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="login-param-username"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">username</span>, </span></li>
-<li><span class="parameter" id="login-param-password"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">password</span></span></li>
+<span class="name ">login</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="login-param-username"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.13.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">username</span>, </span></li>
+<li><span class="parameter" id="login-param-password"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.13.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">password</span></span></li>
 </ol>)
 
       
@@ -63,7 +111,7 @@
     
 <section class="desc markdown">
   <p>Gets the JWT and refresh token through the API</p>
-<p>Will throw an <a href="https://api.flutter.dev/flutter/dart-core/Exception-class.html">Exception</a> if the password and user do not match OR API returns a 400</p>
+<p>Will throw an <a href="https://api.dart.dev/stable/2.13.4/dart-core/Exception-class.html">Exception</a> if the password and user do not match OR API returns a 400</p>
 <pre class="language-dart"><code class="language-dart">var client = MDClient()
 client.login('myuser','mypassword')
 </code></pre>
@@ -95,55 +143,6 @@ client.login('myuser','mypassword')
 
   </div> <!-- /.main-content -->
 
-  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
-    <header id="header-search-sidebar" class="hidden-l">
-  <form class="search-sidebar" role="search">
-    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
-  </form>
-</header>
-
-<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
-  <li><a href="../../index.html">mangadex_api</a></li>
-  <li><a href="../../mangadex_api/mangadex_api-library.html">mangadex_api</a></li>
-  <li><a href="../../mangadex_api/MDClient-class.html">MDClient</a></li>
-  <li class="self-crumb">login method</li>
-</ol>
-
-
-    <h5>MDClient class</h5>
-    <ol>
-
-    <li class="section-title"><a href="../../mangadex_api/MDClient-class.html#constructors">Constructors</a></li>
-    <li><a href="../../mangadex_api/MDClient/MDClient.html">MDClient</a></li>
-
-
-    <li class="section-title">
-      <a href="../../mangadex_api/MDClient-class.html#instance-properties">Properties</a>
-    </li>
-    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
-    <li><a href="../../mangadex_api/MDClient/refresh.html">refresh</a></li>
-    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
-    <li><a href="../../mangadex_api/MDClient/token.html">token</a></li>
-
-    <li class="section-title"><a href="../../mangadex_api/MDClient-class.html#instance-methods">Methods</a></li>
-    <li><a href="../../mangadex_api/MDClient/getChapter.html">getChapter</a></li>
-    <li><a href="../../mangadex_api/MDClient/getMangaInfo.html">getMangaInfo</a></li>
-    <li><a href="../../mangadex_api/MDClient/login.html">login</a></li>
-    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
-    <li><a href="../../mangadex_api/MDClient/refreshToken.html">refreshToken</a></li>
-    <li><a href="../../mangadex_api/MDClient/solveCaptcha.html">solveCaptcha</a></li>
-    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
-
-    <li class="section-title inherited"><a href="../../mangadex_api/MDClient-class.html#operators">Operators</a></li>
-    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
-
-
-
-
-</ol>
-
-  </div><!--/.sidebar-offcanvas-->
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
   </div><!--/.sidebar-offcanvas-->
 
@@ -159,9 +158,8 @@ client.login('myuser','mypassword')
 </footer>
 
 
-
-<script src="../../static-assets/highlight.pack.js?v1"></script>
-<script src="../../static-assets/script.js?v1"></script>
+<script src="../../static-assets/highlight.pack.js"></script>
+<script src="../../static-assets/script.js"></script>
 
 
 
