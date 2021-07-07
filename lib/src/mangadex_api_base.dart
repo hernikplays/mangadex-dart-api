@@ -200,7 +200,9 @@ class MDClient {
   /// Search for manga
   ///
   /// Optional arguments are `mangaName` ([String]), `authors`, `includedTags`, `excludedTags`, `status` & `demographic` ( All [List<String>])
+  ///
   /// **`status` MUST BE ONE OF `["ongoing","completed","hiatus","cancelled"]`**
+  ///
   /// For more info see [the official documentation](https://api.mangadex.org/docs.html#operation/get-search-manga)
   ///
   /// Throws [Exception] if the server returns a 404 error
