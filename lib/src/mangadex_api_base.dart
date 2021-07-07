@@ -67,8 +67,14 @@ class MDClient {
   ///
   /// Returns [Null] if no chapters found
   Future<Chapter?> getChapter(String uuid) async {
-    var res =
-        await http.get(Uri.parse('https://api.mangadex.org/chapter/$uuid'));
+    var res;
+    if (token != '') {
+      res = await http.get(Uri.parse('https://api.mangadex.org/chapter/$uuid'),
+          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+    } else {
+      res = await http.get(Uri.parse('https://api.mangadex.org/chapter/$uuid'));
+    }
+
     if (res.statusCode == 404) {
       return null;
     }
@@ -121,7 +127,13 @@ class MDClient {
   Future<Manga?> getMangaInfo(String uuid,
       {bool appendChapters = false,
       List<String> translatedLang = const []}) async {
-    var res = await http.get(Uri.parse('https://api.mangadex.org/manga/$uuid'));
+    var res;
+    if (token != '') {
+      res = await http.get(Uri.parse('https://api.mangadex.org/manga/$uuid'),
+          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+    } else {
+      res = await http.get(Uri.parse('https://api.mangadex.org/manga/$uuid'));
+    }
 
     var data = jsonDecode(res.body)['data'];
 
@@ -133,13 +145,16 @@ class MDClient {
           .get(Uri.parse('https://api.mangadex.org/manga/$uuid/aggregate'));
       chapters = Map.from(jsonDecode(chres.body)['volumes']);
     }
+    var covers = await getCovers(uuid);
     var manga = Manga(
         altTitles: data['attributes']['altTitles'],
         title: Map.from(data['attributes']['title']),
         tags: data['attributes']['tags'],
         description: Map.from(data['attributes']['description']),
         isLocked: data['attributes']['isLocked'],
-        links: Map.from(data['attributes']['links']),
+        links: (data['attributes']['links'] == null)
+            ? null
+            : Map.from(data['attributes']['links']),
         originalLang: data['attributes']['originalLanguage'],
         lastChapter: data['attributes']['lastChapter'],
         lastVolume: data['attributes']['lastVolume'],
@@ -150,7 +165,91 @@ class MDClient {
         createdAt: data['attributes']['createdAt'],
         updatedAt: data['attributes']['updatedAt'],
         id: data['id'],
-        chapters: chapters);
+        chapters: chapters,
+        covers: covers!);
     return manga;
+  }
+
+  /// Gets `10` of available cover images for a manga
+  ///
+  /// Returns [Null] if no found
+  Future<List<String>?> getCovers(String mangaUuid) async {
+    var res;
+    if (token != '') {
+      res = await http.get(
+          Uri.parse('https://api.mangadex.org/cover?manga[]=$mangaUuid'),
+          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+    } else {
+      res = await http
+          .get(Uri.parse('https://api.mangadex.org/cover?manga[]=$mangaUuid'));
+    }
+    if (res.statusCode == 404) {
+      return null;
+    }
+    var data = jsonDecode(res.body)['results'];
+
+    // ignore: omit_local_variable_types
+    List<String> covers = [];
+    for (var item in data) {
+      covers.add(
+          'https://uploads.mangadex.org/covers/$mangaUuid/${item["data"]["attributes"]["fileName"]}');
+    }
+    return covers;
+  }
+
+  /// Search for manga
+  ///
+  /// Optional arguments are `mangaName` ([String]), `authors`, `includedTags`, `excludedTags`, `status` & `demographic` ( All [List<String>])
+  /// **`status` MUST BE ONE OF `["ongoing","completed","hiatus","cancelled"]`**
+  /// For more info see [the official documentation](https://api.mangadex.org/docs.html#operation/get-search-manga)
+  ///
+  /// Throws [Exception] if the server returns a 404 error
+  ///
+  /// Returns an empty [List<String>] if no results
+  Future<List<Manga>> search(
+      {String mangaTitle = '',
+      List<String> authors = const [],
+      List<String> includedTags = const [],
+      List<String> excludedTags = const [],
+      List<String> status = const [],
+      List<String> demographic = const []}) async {
+    var res;
+    if (token != '') {
+      res = await http.get(
+          Uri.parse(
+              'https://api.mangadex.org/manga?title=$mangaTitle${(authors.isNotEmpty) ? '&authors[]=${authors.join('&authors[]=')}' : ''}${(includedTags.isNotEmpty) ? '&includedTags[]=${includedTags.join('&includedTags[]=')}' : ''}${(excludedTags.isNotEmpty) ? '&excludedTags[]=${excludedTags.join('&excludedTags[]=')}' : ''}${(status.isNotEmpty) ? '&status[]=${status.join('&status[]=')}' : ''}${(demographic.isNotEmpty) ? '&publicationDemographic[]=${demographic.join('&publicationDemographic[]=')}' : ''}'),
+          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+    } else {
+      res = await http.get(Uri.parse(
+          'https://api.mangadex.org/manga?title=$mangaTitle${(authors.isNotEmpty) ? '&authors[]=${authors.join('&authors[]=')}' : ''}${(includedTags.isNotEmpty) ? '&includedTags[]=${includedTags.join('&includedTags[]=')}' : ''}${(excludedTags.isNotEmpty) ? '&excludedTags[]=${excludedTags.join('&excludedTags[]=')}' : ''}${(status.isNotEmpty) ? '&status[]=${status.join('&status[]=')}' : ''}${(demographic.isNotEmpty) ? '&publicationDemographic[]=${demographic.join('&publicationDemographic[]=')}' : ''}'));
+    }
+    var data = jsonDecode(res.body);
+    if (res.statusCode == 400) {
+      throw 'Error: ${data["errors"][0]["title"]} - ${data["errors"][0]["detail"]}';
+    }
+    List<Manga>? results = [];
+    for (var manga in data['results']) {
+      var r = manga['data'];
+      results.add(Manga(
+          altTitles: r['attributes']['altTitles'],
+          title: Map.from(r['attributes']['title']),
+          tags: r['attributes']['tags'],
+          description: Map.from(r['attributes']['description']),
+          isLocked: r['attributes']['isLocked'],
+          links: (r['attributes']['links'] == null)
+              ? null
+              : Map.from(r['attributes']['links']),
+          originalLang: r['attributes']['originalLanguage'],
+          lastChapter: r['attributes']['lastChapter'],
+          lastVolume: r['attributes']['lastVolume'],
+          demographic: r['attributes']['publicationDemographic'],
+          status: r['attributes']['status'],
+          releaseYear: r['attributes']['year'],
+          contentRating: r['attributes']['contentRating'],
+          createdAt: r['attributes']['createdAt'],
+          updatedAt: r['attributes']['updatedAt'],
+          id: r['id']));
+    }
+    return results;
   }
 }

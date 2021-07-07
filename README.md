@@ -20,17 +20,20 @@ main() {
   });
 }
 ```
+
+Currently if you login, **all** requests will be done with your token.
+
 ## What's implemented
 - Log-in
 - Get Chapters
 - Get Manga
+- Get cover
 
 ## What's NOT yet implemented
-- Get cover
 - Captcha
 - Get user
 - Get group
-- Search
+- Manga search
 
 ## Features and bugs
 

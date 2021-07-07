@@ -102,6 +102,9 @@ class Manga {
   /// available chapters from the /aggregate endpoint
   final Map<String, dynamic>? chapters;
 
+  /// list of URLs for cover images (same as from the [getCovers] function)
+  final List<String>? covers;
+
   Manga(
       {required this.id,
       required this.title,
@@ -119,5 +122,6 @@ class Manga {
       this.links,
       this.releaseYear,
       this.status,
-      this.chapters});
+      this.chapters,
+      this.covers});
 }

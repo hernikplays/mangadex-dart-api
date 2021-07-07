@@ -1,14 +1,12 @@
 name: mangadex_api
 description: API wrapper for the MangaDex API
-version: 1.0.0
+version: 1.0.0-dev.1
 repository: https://github.com/hernikplays/mangadex-dart-api
 issue_tracker: https://github.com/hernikplays/mangadex-dart-api/issues
+homepage: https://hernikplays.cz/mangadex-dart-api
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
-
-# dependencies:
-#   path: ^1.8.0
 
 dev_dependencies:
   pedantic: ^1.10.0
