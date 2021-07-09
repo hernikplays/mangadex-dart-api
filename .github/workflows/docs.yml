@@ -14,7 +14,7 @@ on:
 jobs:
   make:
     runs-on: ubuntu-latest
-    if: "!startsWith(github.event.head_commit.message, '[Skip Docs]')"
+    if: "startsWith(github.event.head_commit.message, '[Make docs]')"
     steps:
       - uses: actions/checkout@v2
       - uses: dart-lang/setup-dart@v1
