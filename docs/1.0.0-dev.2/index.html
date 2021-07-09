@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="generator" content="made with love by dartdoc 0.42.0">
+  <meta name="description" content="mangadex_api API docs, for the Dart programming language.">
+  <title>mangadex_api - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="static-assets/github.css">
+  <link rel="stylesheet" href="static-assets/styles.css">
+  <link rel="icon" href="static-assets/favicon.png">
+
+  
+</head>
+
+
+<body data-base-href=""
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://hernikplays.cz/mangadex-dart-api">mangadex_api package</a></li>
+  </ol>
+  <div class="self-name">mangadex_api</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="https://hernikplays.cz/mangadex-dart-api">mangadex_api package</a></li>
+</ol>
+
+
+    <h5 class="hidden-xs"><span class="package-name">mangadex_api</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="mangadex_api/mangadex_api-library.html">mangadex_api</a></li>
+</ol>
+
+  </div>
+
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <p>A MangaDex API wrapper for Dart</p>
+<p><a href="https://open.vscode.dev/hernikplays/mangadex-dart-api"><img src="https://open.vscode.dev/badges/open-in-vscode.svg" alt="Open in Visual Studio Code"></a> <a href="https://github.com/hernikplays/mangadex-dart-api/actions/workflows/dart.yml"><img src="https://github.com/hernikplays/mangadex-dart-api/actions/workflows/dart.yml/badge.svg" alt="Dart Test"></a></p>
+<h2 id="usage">Usage</h2>
+<p>A simple usage example:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:mangadex_api/mangadex_api.dart';
+
+main() {
+  var client = MDClient();
+
+  client.getChapter('5e8bc984-5f3f-4fb1-b6ee-cf7f3812b112').then((chapter) {
+    print(chapter!.title);
+  });
+
+  client.getMangaInfo('a96676e5-8ae2-425e-b549-7f15dd34a6d8',
+      appendChapters: true, translatedLang: ['cs']).then((m) {
+    print(m!.title['en']);
+  });
+}
+</code></pre>
+<p>Currently if you login, only requests <strong>where authentication is required</strong> will be done with your token, <strong>unless</strong> you set the <code>useLogin</code> parameter in a function as true.</p>
+<h2 id="captcha">Captcha</h2>
+<p>If the server returns a captcha, the library will throw a <code>CaptchaException</code>, which, if handled, has the sitekey inside. After you solve the captcha, you need to pass the result to the <code>solveCaptcha</code> function.</p>
+<h2 id="whats-implemented">What's implemented</h2>
+<ul>
+<li>Log-in</li>
+<li>Get Chapters</li>
+<li>Get Manga</li>
+<li>Get cover</li>
+<li>Manga search</li>
+<li>Get user</li>
+</ul>
+<h2 id="whats-not-yet-implemented">What's NOT yet implemented</h2>
+<ul>
+<li>Captcha</li>
+<li>Get group</li>
+</ul>
+<h2 id="features-and-bugs">Features and bugs</h2>
+<p>Please file feature requests and bugs at the <a href="https://github.com/hernikplays/mangadex-dart-api/issues">issue tracker</a>.</p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="mangadex_api">
+  <span class="name"><a href="mangadex_api/mangadex_api-library.html">mangadex_api</a></span> 
+
+</dt>
+<dd>MangaDex API wrapper 
+</dd>
+
+        </dl>
+      </section>
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+
+</main>
+
+<footer>
+  <span class="no-break">
+    mangadex_api
+      1.0.0-dev.2
+  </span>
+
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js"></script>
+<script src="static-assets/script.js"></script>
+
+
+
+</body>
+
+</html>
+
