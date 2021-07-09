@@ -18,16 +18,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: dart-lang/setup-dart@v1
-      - name: Add yq
-        uses: mikefarah/yq@v4.9.8
       - name: Get version
-        run: echo "APP_VERSION=$(yq e '.version' ./pubspec.yaml)" >> $GITHUB_ENV
+        uses: mikefarah/yq@v4.9.8
+        id: getVersion
+        with:
+          cmd: yq e '.version' ./pubspec.yaml
       - name: Install dependencies
         run: dart pub get
       - name: Install DartDoc
         run: dart pub global activate dartdoc
       - name: Generate docs
-        run: dartdoc --output docs/{{ env.APP_VERSION }}
+        run: dartdoc --output docs/{{ steps.getVersion.outputs.result }}
       - name: Commit files
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
