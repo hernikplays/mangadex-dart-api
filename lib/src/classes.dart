@@ -144,7 +144,10 @@ class User {
 ///
 /// For sending the captcha result use the [solveCaptcha] function
 class CaptchaException implements Exception {
+  /// Additional message
   final String message;
+
+  /// Recaptcha site key used for rendering the [widget](https://developers.google.com/recaptcha/docs/display#auto_render)
   final String sitekey;
   CaptchaException(this.sitekey, {this.message = ''});
 }
