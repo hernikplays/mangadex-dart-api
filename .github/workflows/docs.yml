@@ -28,7 +28,7 @@ jobs:
       - name: Install DartDoc
         run: dart pub global activate dartdoc
       - name: Generate docs
-        run: dartdoc --output docs/{{ steps.getVersion.outputs.result }}
+        run: dartdoc --output docs/${{ steps.getVersion.outputs.result }}
       - name: Commit files
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
