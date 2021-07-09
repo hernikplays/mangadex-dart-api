@@ -14,17 +14,22 @@ on:
 jobs:
   make:
     runs-on: ubuntu-latest
-    if: "startsWith(github.event.head_commit.message, '[Make docs]')"
+    if: "!startsWith(github.event.head_commit.message, '[Skip Docs]')"
     steps:
       - uses: actions/checkout@v2
       - uses: dart-lang/setup-dart@v1
-
+      - name: Add yq
+        uses: mikefarah/yq@v4.9.8
+      - name: Get version
+        run: |
+            yq e '.version' >> $VER
+            echo "APP_VERSION=$VER" >> $GITHUB_ENV
       - name: Install dependencies
         run: dart pub get
       - name: Install DartDoc
         run: dart pub global activate dartdoc
       - name: Generate docs
-        run: dartdoc --output docs
+        run: dartdoc --output docs/{{ env.APP_VERSION }}
       - name: Commit files
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
