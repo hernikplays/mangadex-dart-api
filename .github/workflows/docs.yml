@@ -21,9 +21,7 @@ jobs:
       - name: Add yq
         uses: mikefarah/yq@v4.9.8
       - name: Get version
-        run: |
-            yq e '.version' >> $VER
-            echo "APP_VERSION=$VER" >> $GITHUB_ENV
+        run: echo "APP_VERSION=$(yq e '.version' ./pubspec.yaml)" >> $GITHUB_ENV
       - name: Install dependencies
         run: dart pub get
       - name: Install DartDoc
