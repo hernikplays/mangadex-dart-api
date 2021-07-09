@@ -35,6 +35,13 @@ class MDClient {
         throw 'Bad request';
       }
       var data = jsonDecode(res.body);
+
+      if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+        throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+            message:
+                'You need to solve a captcha, check `.sitekey` for the sitekey.');
+      }
+
       token = data['token']['session'];
       refresh = data['token']['refresh'];
     });
@@ -66,9 +73,9 @@ class MDClient {
   /// Gets the chapter specified by the UUID
   ///
   /// Returns [Null] if no chapters found
-  Future<Chapter?> getChapter(String uuid) async {
+  Future<Chapter?> getChapter(String uuid, {useLogin = false}) async {
     var res;
-    if (token != '') {
+    if (token != '' && useLogin) {
       res = await http.get(Uri.parse('https://api.mangadex.org/chapter/$uuid'),
           headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
     } else {
@@ -80,6 +87,11 @@ class MDClient {
     }
 
     var data = jsonDecode(res.body)['data'];
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'],
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
 
     // get MD@H URL
     var md = await http.get(
@@ -126,9 +138,10 @@ class MDClient {
   /// Returns [Null] if no manga can be found
   Future<Manga?> getMangaInfo(String uuid,
       {bool appendChapters = false,
-      List<String> translatedLang = const []}) async {
+      List<String> translatedLang = const [],
+      useLogin = false}) async {
     var res;
-    if (token != '') {
+    if (token != '' && useLogin) {
       res = await http.get(Uri.parse('https://api.mangadex.org/manga/$uuid'),
           headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
     } else {
@@ -136,7 +149,11 @@ class MDClient {
     }
 
     var data = jsonDecode(res.body)['data'];
-
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'],
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
     // ignore: omit_local_variable_types
     Map<String, dynamic> chapters = {};
     // append available chapters from other API endpoint
@@ -173,9 +190,9 @@ class MDClient {
   /// Gets `10` of available cover images for a manga
   ///
   /// Returns [Null] if no found
-  Future<List<String>?> getCovers(String mangaUuid) async {
+  Future<List<String>?> getCovers(String mangaUuid, {useLogin = false}) async {
     var res;
-    if (token != '') {
+    if (token != '' && useLogin) {
       res = await http.get(
           Uri.parse('https://api.mangadex.org/cover?manga[]=$mangaUuid'),
           headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
@@ -187,7 +204,11 @@ class MDClient {
       return null;
     }
     var data = jsonDecode(res.body)['results'];
-
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'],
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
     // ignore: omit_local_variable_types
     List<String> covers = [];
     for (var item in data) {
@@ -214,9 +235,10 @@ class MDClient {
       List<String> includedTags = const [],
       List<String> excludedTags = const [],
       List<String> status = const [],
-      List<String> demographic = const []}) async {
+      List<String> demographic = const [],
+      useLogin = false}) async {
     var res;
-    if (token != '') {
+    if (token != '' && useLogin) {
       res = await http.get(
           Uri.parse(
               'https://api.mangadex.org/manga?title=$mangaTitle${(authors.isNotEmpty) ? '&authors[]=${authors.join('&authors[]=')}' : ''}${(includedTags.isNotEmpty) ? '&includedTags[]=${includedTags.join('&includedTags[]=')}' : ''}${(excludedTags.isNotEmpty) ? '&excludedTags[]=${excludedTags.join('&excludedTags[]=')}' : ''}${(status.isNotEmpty) ? '&status[]=${status.join('&status[]=')}' : ''}${(demographic.isNotEmpty) ? '&publicationDemographic[]=${demographic.join('&publicationDemographic[]=')}' : ''}'),
@@ -226,6 +248,12 @@ class MDClient {
           'https://api.mangadex.org/manga?title=$mangaTitle${(authors.isNotEmpty) ? '&authors[]=${authors.join('&authors[]=')}' : ''}${(includedTags.isNotEmpty) ? '&includedTags[]=${includedTags.join('&includedTags[]=')}' : ''}${(excludedTags.isNotEmpty) ? '&excludedTags[]=${excludedTags.join('&excludedTags[]=')}' : ''}${(status.isNotEmpty) ? '&status[]=${status.join('&status[]=')}' : ''}${(demographic.isNotEmpty) ? '&publicationDemographic[]=${demographic.join('&publicationDemographic[]=')}' : ''}'));
     }
     var data = jsonDecode(res.body);
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'],
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+
     if (res.statusCode == 400) {
       throw 'Error: ${data["errors"][0]["title"]} - ${data["errors"][0]["detail"]}';
     }
@@ -253,5 +281,20 @@ class MDClient {
           id: r['id']));
     }
     return results;
+  }
+
+  /// Gets user by ID
+  Future<User> getUser(String uuid) async {
+    var res = await http.get(Uri.parse('https://api.mangadex.org/user/$uuid'));
+    var data = jsonDecode(res.body)['data'];
+
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+
+    var user = User(id: data['id'], username: data['attributes']['username']);
+    return user;
   }
 }

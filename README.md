@@ -1,5 +1,7 @@
 A MangaDex API wrapper for Dart
 
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/hernikplays/mangadex-dart-api) [![Dart Test](https://github.com/hernikplays/mangadex-dart-api/actions/workflows/dart.yml/badge.svg)](https://github.com/hernikplays/mangadex-dart-api/actions/workflows/dart.yml)
+
 ## Usage
 
 A simple usage example:
@@ -21,7 +23,10 @@ main() {
 }
 ```
 
-Currently if you login, **all** requests will be done with your token.
+Currently if you login, only requests __where authentication is required__ will be done with your token, **unless** you set the `useLogin` parameter in a function as true.
+
+## Captcha
+If the server returns a captcha, the library will throw a [CaptchaException], which, if handled, has the sitekey inside. After you solve the captcha, you need to pass the result to the [solveCaptcha] function.
 
 ## What's implemented
 - Log-in
@@ -29,10 +34,10 @@ Currently if you login, **all** requests will be done with your token.
 - Get Manga
 - Get cover
 - Manga search
+- Get user
 
 ## What's NOT yet implemented
 - Captcha
-- Get user
 - Get group
 
 ## Features and bugs

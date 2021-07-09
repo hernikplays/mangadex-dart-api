@@ -32,5 +32,10 @@ void main() {
       ]);
       expect(manga[0].title['en'], 'Ijiranaide, Nagatoro-san');
     });
+
+    test('Get User Test', () async {
+      var user = await client.getUser('b60aca06-048f-4cb9-89c8-87ab2b0dc28f');
+      expect(user.username, 'hernik');
+    });
   });
 }

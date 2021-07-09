@@ -1,3 +1,4 @@
+/// Holds data about a single Chapter
 class Chapter {
   /// Chapter ID
   final String id;
@@ -50,6 +51,7 @@ class Chapter {
       this.chapter});
 }
 
+/// Holds data about a Manga
 class Manga {
   /// Manga ID
   final String id;
@@ -124,4 +126,25 @@ class Manga {
       this.status,
       this.chapters,
       this.covers});
+}
+
+/// Holds data about a MangaDex user
+class User {
+  /// User's username
+  final String username;
+
+  /// User's ID
+  final String id;
+  User({required this.username, required this.id});
+}
+
+/// Exception thrown when the API server returns a 403 error requiring completion of a captcha
+///
+/// For more info on MangaDex API's captchas check [this part of their API](https://api.mangadex.org/docs.html#section/Captchas)
+///
+/// For sending the captcha result use the [solveCaptcha] function
+class CaptchaException implements Exception {
+  final String message;
+  final String sitekey;
+  CaptchaException(this.sitekey, {this.message = ''});
 }
