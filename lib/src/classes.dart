@@ -172,7 +172,7 @@ class Group {
   /// Group's set IRC server
   final String? ircServer;
 
-  /// GRoUP's set IRC channel
+  /// Group's set IRC channel
   final String? ircChannel;
 
   /// Group's set discord
