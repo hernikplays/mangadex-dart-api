@@ -21,4 +21,12 @@ void main() {
       authors: ['7e552c08-f7cf-4e0e-9723-409d749dd77c']).then((res) {
     print(res[0].title);
   });
+
+  client.getGroup('790a3272-2a99-4df7-95d1-ee527351a3d0').then((group) {
+    print(group!.name);
+  });
+
+  client.searchGroups(name: 'Weebium').then((group) {
+    print(group[0].leader.username);
+  });
 }

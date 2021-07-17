@@ -96,7 +96,7 @@ class MDClient {
   /// Gets the chapter specified by the UUID
   ///
   /// Returns [Null] if no chapters found
-  Future<Chapter?> getChapter(String uuid, {useLogin = false}) async {
+  Future<Chapter?> getChapter(String uuid, {bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
       res = await http.get(Uri.parse('https://api.mangadex.org/chapter/$uuid'),
@@ -162,7 +162,7 @@ class MDClient {
   Future<Manga?> getMangaInfo(String uuid,
       {bool appendChapters = false,
       List<String> translatedLang = const [],
-      useLogin = false}) async {
+      bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
       res = await http.get(Uri.parse('https://api.mangadex.org/manga/$uuid'),
@@ -206,14 +206,17 @@ class MDClient {
         updatedAt: data['attributes']['updatedAt'],
         id: data['id'],
         chapters: chapters,
-        covers: covers!);
+        covers: covers);
     return manga;
   }
 
   /// Gets `10` of available cover images for a manga
   ///
+  /// Requires valid manga UUID
+  ///
   /// Returns [Null] if no found
-  Future<List<String>?> getCovers(String mangaUuid, {useLogin = false}) async {
+  Future<List<String>?> getCovers(String mangaUuid,
+      {bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
       res = await http.get(
@@ -249,8 +252,6 @@ class MDClient {
   ///
   /// For more info see [the official documentation](https://api.mangadex.org/docs.html#operation/get-search-manga)
   ///
-  /// Throws [Exception] if the server returns a 404 error
-  ///
   /// Returns an empty [List<String>] if no results
   Future<List<Manga>> search(
       {String mangaTitle = '',
@@ -259,7 +260,7 @@ class MDClient {
       List<String> excludedTags = const [],
       List<String> status = const [],
       List<String> demographic = const [],
-      useLogin = false}) async {
+      bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
       res = await http.get(
@@ -306,9 +307,19 @@ class MDClient {
     return results;
   }
 
-  /// Gets user by ID
-  Future<User> getUser(String uuid) async {
-    var res = await http.get(Uri.parse('https://api.mangadex.org/user/$uuid'));
+  /// Gets user
+  ///
+  /// Requires user's `uuid`
+  ///
+  /// Returns [Null] if not found
+  Future<User?> getUser(String uuid, {bool useLogin = false}) async {
+    var res;
+    if (token != '' && useLogin) {
+      res = await http.get(Uri.parse('https://api.mangadex.org/user/$uuid'),
+          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+    } else {
+      res = await http.get(Uri.parse('https://api.mangadex.org/user/$uuid'));
+    }
     var data = jsonDecode(res.body)['data'];
 
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
@@ -316,8 +327,105 @@ class MDClient {
           message:
               'You need to solve a captcha, check `.sitekey` for the sitekey.');
     }
-
+    if (res.statusCode == 404) {
+      return null;
+    }
     var user = User(id: data['id'], username: data['attributes']['username']);
     return user;
+  }
+
+  /// Gets information about a Scanlation Group
+  ///
+  /// Requires group's `uuid`
+  ///
+  /// Returns [Null] if no results
+  Future<Group?> getGroup(String uuid, {bool useLogin = false}) async {
+    var res;
+    if (token != '' && useLogin) {
+      res = await http.get(Uri.parse('  $uuid'),
+          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+    } else {
+      res = await http.get(Uri.parse('https://api.mangadex.org/group/$uuid'));
+    }
+    var data = jsonDecode(res.body)['data'];
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    if (res.statusCode == 404) {
+      return null;
+    }
+    var group = Group(
+        id: data['id'],
+        name: data['attributes']['name'],
+        isLocked: data['attributes']['locked'],
+        createdAt: data['attributes']['createdAt'],
+        updatedAt: data['attributes']['updatedAt'],
+        description: data['attributes']['description'],
+        website: data['attributes']['website'],
+        ircChannel: data['attributes']['ircChannel'],
+        ircServer: data['attributes']['ircServer'],
+        discord: data['attributes']['discord'],
+        contactEmail: data['attributes']['contactEmail'],
+        leader: User(
+            id: data['attributes']['leader']['id'],
+            username: data['attributes']['leader']['attributes']['username']));
+    return group;
+  }
+
+  /// Searches for groups with the given parameters
+  ///
+  /// Returns an empty [List] if no results
+  Future<List<Group>> searchGroups(
+      {bool useLogin = false,
+      String name = '',
+      List<String> ids = const []}) async {
+    var res;
+    if (token != '' && useLogin) {
+      res = await http.get(
+          Uri.parse(
+              'https://api.mangadex.org/group?name=$name${(ids.isNotEmpty) ? '&ids[]=${ids.join('&ids[]=')}' : ''}'),
+          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+    } else {
+      res = await http.get(Uri.parse(
+          'https://api.mangadex.org/group?name=$name${(ids.isNotEmpty) ? '&ids[]=${ids.join('&ids[]=')}' : ''}'));
+    }
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    var data = jsonDecode(res.body)['results'];
+    // ignore: omit_local_variable_types
+    List<Group> groups = [];
+
+    for (var group in data) {
+      var r = group['data'];
+      // ignore: omit_local_variable_types
+      List<User> members = [];
+      for (var member in r['attributes']['members']) {
+        members.add(
+            User(id: member['id'], username: member['attributes']['username']));
+      }
+      groups.add(Group(
+          id: r['id'],
+          name: r['attributes']['name'],
+          isLocked: r['attributes']['locked'],
+          createdAt: r['attributes']['createdAt'],
+          updatedAt: r['attributes']['updatedAt'],
+          description: r['attributes']['description'],
+          website: r['attributes']['website'],
+          ircChannel: r['attributes']['ircChannel'],
+          ircServer: r['attributes']['ircServer'],
+          discord: r['attributes']['discord'],
+          contactEmail: r['attributes']['contactEmail'],
+          leader: User(
+              id: r['attributes']['leader']['id'],
+              username: r['attributes']['leader']['attributes']['username']),
+          members: members));
+    }
+
+    return groups;
   }
 }

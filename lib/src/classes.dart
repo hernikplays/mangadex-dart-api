@@ -151,3 +151,60 @@ class CaptchaException implements Exception {
   final String sitekey;
   CaptchaException(this.sitekey, {this.message = ''});
 }
+
+/// Holds data about a Scanlation group
+class Group {
+  /// Name of the group
+  final String name;
+
+  /// Group ID
+  final String id;
+
+  /// Group description
+  final String? description;
+
+  /// The group's leader user
+  final User leader;
+
+  /// Group's set website
+  final String? website;
+
+  /// Group's set IRC server
+  final String? ircServer;
+
+  /// GRoUP's set IRC channel
+  final String? ircChannel;
+
+  /// Group's set discord
+  final String? discord;
+
+  /// Group's set e-mail
+  final String? contactEmail;
+
+  /// When the group was created
+  final String createdAt;
+
+  /// When the group was last updated
+  final String updatedAt;
+
+  /// Whether the group is locked
+  final bool isLocked;
+
+  /// All group members (including leaders)
+  final List<User>? members;
+
+  Group(
+      {required this.name,
+      required this.id,
+      this.description,
+      required this.leader,
+      this.website,
+      this.ircServer,
+      this.ircChannel,
+      this.discord,
+      this.contactEmail,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.isLocked,
+      this.members});
+}

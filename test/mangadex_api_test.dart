@@ -35,7 +35,17 @@ void main() {
 
     test('Get User Test', () async {
       var user = await client.getUser('b60aca06-048f-4cb9-89c8-87ab2b0dc28f');
-      expect(user.username, 'hernik');
+      expect(user!.username, 'hernik');
+    });
+
+    test('Get Group Test', () async {
+      var group = await client.getGroup('790a3272-2a99-4df7-95d1-ee527351a3d0');
+      expect(group!.name, 'Weebium');
+    });
+
+    test('Search Group Test', () async {
+      var group = await client.searchGroups(name: 'Weebium');
+      expect(group[0].leader.username, 'hernik');
     });
   });
 }
