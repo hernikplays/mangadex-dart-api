@@ -68,7 +68,30 @@ class MDClient {
     });
   }
 
-  void solveCaptcha() {} // TODO: complete captcha system
+  /// Sends the captcha result to the API server
+  ///
+  /// Automatically sends your session token if you are logged in
+  ///
+  /// Throws an Exception if the captcha was solved incorrrectly
+  Future<void> solveCaptcha(String captchaResult) async {
+    var res;
+    if (token != '') {
+      res = await http.post(
+        Uri.parse('https://api.mangadex.org/auth/solve'),
+        headers: {HttpHeaders.authorizationHeader: 'Bearer $token'},
+        body: '{"captchaChallenge":"$captchaResult"}',
+      );
+    } else {
+      res = await http.post(
+        Uri.parse('https://api.mangadex.org/auth/solve'),
+        body: '{"captchaChallenge":"$captchaResult"}',
+      );
+    }
+    var data = jsonDecode(res.body);
+    if (res.statusCode == 400) {
+      throw 'An error has happened: ${data["errors"][0]["title"]} - ${data["errors"][0]["detail"]}';
+    }
+  }
 
   /// Gets the chapter specified by the UUID
   ///

@@ -142,7 +142,7 @@ class User {
 ///
 /// For more info on MangaDex API's captchas check [this part of their API](https://api.mangadex.org/docs.html#section/Captchas)
 ///
-/// For sending the captcha result use the [solveCaptcha] function
+/// For sending the captcha result use the solveCaptcha function
 class CaptchaException implements Exception {
   /// Additional message
   final String message;
