@@ -76,7 +76,7 @@
     <li><a href="../../mangadex_api/MDClient/getChapter.html">getChapter</a></li>
     <li><a href="../../mangadex_api/MDClient/getCovers.html">getCovers</a></li>
     <li><a href="../../mangadex_api/MDClient/getGroup.html">getGroup</a></li>
-    <li><a href="../../mangadex_api/MDClient/getMangaInfo.html">getMangaInfo</a></li>
+    <li><a href="../../mangadex_api/MDClient/getManga.html">getManga</a></li>
     <li><a href="../../mangadex_api/MDClient/getUser.html">getUser</a></li>
     <li><a href="../../mangadex_api/MDClient/login.html">login</a></li>
     <li class="inherited"><a href="https://api.dart.dev/stable/2.13.4/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
@@ -159,28 +159,60 @@
   if (res.statusCode == 400) {
     throw &#39;Error: ${data[&quot;errors&quot;][0][&quot;title&quot;]} - ${data[&quot;errors&quot;][0][&quot;detail&quot;]}&#39;;
   }
+
   List&lt;Manga&gt;? results = [];
   for (var manga in data[&#39;results&#39;]) {
     var r = manga[&#39;data&#39;];
-    results.add(Manga(
-        altTitles: r[&#39;attributes&#39;][&#39;altTitles&#39;],
-        title: Map.from(r[&#39;attributes&#39;][&#39;title&#39;]),
-        tags: r[&#39;attributes&#39;][&#39;tags&#39;],
-        description: Map.from(r[&#39;attributes&#39;][&#39;description&#39;]),
-        isLocked: r[&#39;attributes&#39;][&#39;isLocked&#39;],
-        links: (r[&#39;attributes&#39;][&#39;links&#39;] == null)
-            ? null
-            : Map.from(r[&#39;attributes&#39;][&#39;links&#39;]),
-        originalLang: r[&#39;attributes&#39;][&#39;originalLanguage&#39;],
-        lastChapter: r[&#39;attributes&#39;][&#39;lastChapter&#39;],
-        lastVolume: r[&#39;attributes&#39;][&#39;lastVolume&#39;],
-        demographic: r[&#39;attributes&#39;][&#39;publicationDemographic&#39;],
-        status: r[&#39;attributes&#39;][&#39;status&#39;],
-        releaseYear: r[&#39;attributes&#39;][&#39;year&#39;],
-        contentRating: r[&#39;attributes&#39;][&#39;contentRating&#39;],
-        createdAt: r[&#39;attributes&#39;][&#39;createdAt&#39;],
-        updatedAt: r[&#39;attributes&#39;][&#39;updatedAt&#39;],
-        id: r[&#39;id&#39;]));
+    var relations = manga[&#39;relationships&#39;];
+    var cover, author, artist;
+    for (var rel in relations) {
+      switch (rel[&#39;type&#39;]) {
+        case &#39;author&#39;:
+          author = Author(
+              name: rel[&#39;attributes&#39;][&#39;name&#39;],
+              id: rel[&#39;id&#39;],
+              biography: Map.from(rel[&#39;attributes&#39;][&#39;biography&#39;]),
+              imageUrl: rel[&#39;attributes&#39;][&#39;imageUrl&#39;]);
+          break;
+        case &#39;artist&#39;:
+          artist = Author(
+              name: rel[&#39;attributes&#39;][&#39;name&#39;],
+              id: rel[&#39;id&#39;],
+              imageUrl: rel[&#39;attributes&#39;][&#39;imageUrl&#39;],
+              biography: Map.from(rel[&#39;attributes&#39;][&#39;biography&#39;]));
+          break;
+        case &#39;cover_art&#39;:
+          cover =
+              &#39;https:&#47;&#47;uploads.mangadex.org&#47;covers&#47;${r[&#39;id&#39;]}&#47;${rel[&#39;attributes&#39;][&#39;fileName&#39;]}&#39;;
+          break;
+        default:
+          break;
+      }
+    }
+    results.add(
+      Manga(
+          altTitles: r[&#39;attributes&#39;][&#39;altTitles&#39;],
+          title: Map.from(r[&#39;attributes&#39;][&#39;title&#39;]),
+          tags: r[&#39;attributes&#39;][&#39;tags&#39;],
+          description: Map.from(r[&#39;attributes&#39;][&#39;description&#39;]),
+          isLocked: r[&#39;attributes&#39;][&#39;isLocked&#39;],
+          links: (r[&#39;attributes&#39;][&#39;links&#39;] == null)
+              ? null
+              : Map.from(r[&#39;attributes&#39;][&#39;links&#39;]),
+          originalLang: r[&#39;attributes&#39;][&#39;originalLanguage&#39;],
+          lastChapter: r[&#39;attributes&#39;][&#39;lastChapter&#39;],
+          lastVolume: r[&#39;attributes&#39;][&#39;lastVolume&#39;],
+          demographic: r[&#39;attributes&#39;][&#39;publicationDemographic&#39;],
+          status: r[&#39;attributes&#39;][&#39;status&#39;],
+          releaseYear: r[&#39;attributes&#39;][&#39;year&#39;],
+          contentRating: r[&#39;attributes&#39;][&#39;contentRating&#39;],
+          createdAt: r[&#39;attributes&#39;][&#39;createdAt&#39;],
+          updatedAt: r[&#39;attributes&#39;][&#39;updatedAt&#39;],
+          id: r[&#39;id&#39;],
+          cover: cover,
+          author: author,
+          artist: artist),
+    );
   }
   return results;
 }</code></pre>
