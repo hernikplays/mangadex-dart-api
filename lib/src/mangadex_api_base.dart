@@ -159,19 +159,22 @@ class MDClient {
   /// If appending chapters, [translatedLang] should be either an empty [Array] (which will append chapters of all languages) or filled with codes of desired languages
   ///
   /// Returns [Null] if no manga can be found
-  Future<Manga?> getMangaInfo(String uuid,
+  Future<Manga?> getManga(String uuid,
       {bool appendChapters = false,
       List<String> translatedLang = const [],
       bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
-      res = await http.get(Uri.parse('https://api.mangadex.org/manga/$uuid'),
+      res = await http.get(
+          Uri.parse(
+              'https://api.mangadex.org/manga/$uuid?includes[]=cover_art&includes[]=author&includes[]=artist'),
           headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
     } else {
       res = await http.get(Uri.parse('https://api.mangadex.org/manga/$uuid'));
     }
-
-    var data = jsonDecode(res.body)['data'];
+    var body = jsonDecode(res.body);
+    var data = body['data'];
+    var relations = body['relationships'];
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
       throw CaptchaException(res.headers['X-Captcha-Sitekey'],
           message:
@@ -185,28 +188,55 @@ class MDClient {
           .get(Uri.parse('https://api.mangadex.org/manga/$uuid/aggregate'));
       chapters = Map.from(jsonDecode(chres.body)['volumes']);
     }
-    var covers = await getCovers(uuid);
+    var cover, author, artist;
+    for (var rel in relations) {
+      switch (rel['type']) {
+        case 'author':
+          author = Author(
+              name: rel['attributes']['name'],
+              id: rel['id'],
+              biography: Map.from(rel['attributes']['biography']),
+              imageUrl: rel['attributes']['imageUrl']);
+          break;
+        case 'artist':
+          artist = Author(
+              name: rel['attributes']['name'],
+              id: rel['id'],
+              imageUrl: rel['attributes']['imageUrl'],
+              biography: Map.from(rel['attributes']['biography']));
+          break;
+        case 'cover_art':
+          cover =
+              'https://uploads.mangadex.org/covers/$uuid/${rel['attributes']['fileName']}';
+          break;
+        default:
+          break;
+      }
+    }
     var manga = Manga(
-        altTitles: data['attributes']['altTitles'],
-        title: Map.from(data['attributes']['title']),
-        tags: data['attributes']['tags'],
-        description: Map.from(data['attributes']['description']),
-        isLocked: data['attributes']['isLocked'],
-        links: (data['attributes']['links'] == null)
-            ? null
-            : Map.from(data['attributes']['links']),
-        originalLang: data['attributes']['originalLanguage'],
-        lastChapter: data['attributes']['lastChapter'],
-        lastVolume: data['attributes']['lastVolume'],
-        demographic: data['attributes']['publicationDemographic'],
-        status: data['attributes']['status'],
-        releaseYear: data['attributes']['year'],
-        contentRating: data['attributes']['contentRating'],
-        createdAt: data['attributes']['createdAt'],
-        updatedAt: data['attributes']['updatedAt'],
-        id: data['id'],
-        chapters: chapters,
-        covers: covers);
+      altTitles: data['attributes']['altTitles'],
+      title: Map.from(data['attributes']['title']),
+      tags: data['attributes']['tags'],
+      description: Map.from(data['attributes']['description']),
+      isLocked: data['attributes']['isLocked'],
+      links: (data['attributes']['links'] == null)
+          ? null
+          : Map.from(data['attributes']['links']),
+      originalLang: data['attributes']['originalLanguage'],
+      lastChapter: data['attributes']['lastChapter'],
+      lastVolume: data['attributes']['lastVolume'],
+      demographic: data['attributes']['publicationDemographic'],
+      status: data['attributes']['status'],
+      releaseYear: data['attributes']['year'],
+      contentRating: data['attributes']['contentRating'],
+      createdAt: data['attributes']['createdAt'],
+      updatedAt: data['attributes']['updatedAt'],
+      id: data['id'],
+      chapters: chapters,
+      author: author,
+      artist: artist,
+      cover: cover,
+    );
     return manga;
   }
 
@@ -281,28 +311,60 @@ class MDClient {
     if (res.statusCode == 400) {
       throw 'Error: ${data["errors"][0]["title"]} - ${data["errors"][0]["detail"]}';
     }
+
     List<Manga>? results = [];
     for (var manga in data['results']) {
       var r = manga['data'];
-      results.add(Manga(
-          altTitles: r['attributes']['altTitles'],
-          title: Map.from(r['attributes']['title']),
-          tags: r['attributes']['tags'],
-          description: Map.from(r['attributes']['description']),
-          isLocked: r['attributes']['isLocked'],
-          links: (r['attributes']['links'] == null)
-              ? null
-              : Map.from(r['attributes']['links']),
-          originalLang: r['attributes']['originalLanguage'],
-          lastChapter: r['attributes']['lastChapter'],
-          lastVolume: r['attributes']['lastVolume'],
-          demographic: r['attributes']['publicationDemographic'],
-          status: r['attributes']['status'],
-          releaseYear: r['attributes']['year'],
-          contentRating: r['attributes']['contentRating'],
-          createdAt: r['attributes']['createdAt'],
-          updatedAt: r['attributes']['updatedAt'],
-          id: r['id']));
+      var relations = manga['relationships'];
+      var cover, author, artist;
+      for (var rel in relations) {
+        switch (rel['type']) {
+          case 'author':
+            author = Author(
+                name: rel['attributes']['name'],
+                id: rel['id'],
+                biography: Map.from(rel['attributes']['biography']),
+                imageUrl: rel['attributes']['imageUrl']);
+            break;
+          case 'artist':
+            artist = Author(
+                name: rel['attributes']['name'],
+                id: rel['id'],
+                imageUrl: rel['attributes']['imageUrl'],
+                biography: Map.from(rel['attributes']['biography']));
+            break;
+          case 'cover_art':
+            cover =
+                'https://uploads.mangadex.org/covers/${r['id']}/${rel['attributes']['fileName']}';
+            break;
+          default:
+            break;
+        }
+      }
+      results.add(
+        Manga(
+            altTitles: r['attributes']['altTitles'],
+            title: Map.from(r['attributes']['title']),
+            tags: r['attributes']['tags'],
+            description: Map.from(r['attributes']['description']),
+            isLocked: r['attributes']['isLocked'],
+            links: (r['attributes']['links'] == null)
+                ? null
+                : Map.from(r['attributes']['links']),
+            originalLang: r['attributes']['originalLanguage'],
+            lastChapter: r['attributes']['lastChapter'],
+            lastVolume: r['attributes']['lastVolume'],
+            demographic: r['attributes']['publicationDemographic'],
+            status: r['attributes']['status'],
+            releaseYear: r['attributes']['year'],
+            contentRating: r['attributes']['contentRating'],
+            createdAt: r['attributes']['createdAt'],
+            updatedAt: r['attributes']['updatedAt'],
+            id: r['id'],
+            cover: cover,
+            author: author,
+            artist: artist),
+      );
     }
     return results;
   }

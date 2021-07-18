@@ -7,7 +7,7 @@ void main() {
     print(chapter!.title);
   });
 
-  client.getMangaInfo('a96676e5-8ae2-425e-b549-7f15dd34a6d8',
+  client.getManga('a96676e5-8ae2-425e-b549-7f15dd34a6d8',
       appendChapters: true, translatedLang: ['cs']).then((m) {
     print(m!.title['en']);
   });

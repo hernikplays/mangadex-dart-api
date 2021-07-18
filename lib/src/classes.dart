@@ -104,8 +104,14 @@ class Manga {
   /// available chapters from the /aggregate endpoint
   final Map<String, dynamic>? chapters;
 
-  /// list of URLs for cover images (same as from the [getCovers] function)
-  final List<String>? covers;
+  /// the cover art, which is currently in use on the website
+  final String cover;
+
+  /// Manga author
+  final Author author;
+
+  /// Manga artist
+  final Author artist;
 
   Manga(
       {required this.id,
@@ -125,7 +131,9 @@ class Manga {
       this.releaseYear,
       this.status,
       this.chapters,
-      this.covers});
+      required this.cover,
+      required this.artist,
+      required this.author});
 }
 
 /// Holds data about a MangaDex user
@@ -207,4 +215,25 @@ class Group {
       required this.updatedAt,
       required this.isLocked,
       this.members});
+}
+
+/// A manga author OR artist
+class Author {
+  /// Author's/Artist's name
+  final String name;
+
+  /// Author's/Artist's biography
+  final Map<String, dynamic> biography;
+
+  /// Author's/Artist's id
+  final String id;
+
+  /// Author's/Artist's image
+  final String? imageUrl;
+
+  Author(
+      {required this.name,
+      required this.biography,
+      required this.id,
+      this.imageUrl});
 }

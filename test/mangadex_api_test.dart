@@ -16,8 +16,7 @@ void main() {
     });
 
     test('Manga Test', () async {
-      var manga =
-          await client.getMangaInfo('a96676e5-8ae2-425e-b549-7f15dd34a6d8');
+      var manga = await client.getManga('a96676e5-8ae2-425e-b549-7f15dd34a6d8');
       expect(manga!.title['en'], 'Komi-san wa Komyushou Desu.');
     });
 
