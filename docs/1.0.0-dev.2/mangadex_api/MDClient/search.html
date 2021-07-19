@@ -143,11 +143,11 @@
   if (token != &#39;&#39; &amp;&amp; useLogin) {
     res = await http.get(
         Uri.parse(
-            &#39;https:&#47;&#47;api.mangadex.org&#47;manga?title=$mangaTitle${(authors.isNotEmpty) ? &#39;&amp;authors[]=${authors.join(&#39;&amp;authors[]=&#39;)}&#39; : &#39;&#39;}${(includedTags.isNotEmpty) ? &#39;&amp;includedTags[]=${includedTags.join(&#39;&amp;includedTags[]=&#39;)}&#39; : &#39;&#39;}${(excludedTags.isNotEmpty) ? &#39;&amp;excludedTags[]=${excludedTags.join(&#39;&amp;excludedTags[]=&#39;)}&#39; : &#39;&#39;}${(status.isNotEmpty) ? &#39;&amp;status[]=${status.join(&#39;&amp;status[]=&#39;)}&#39; : &#39;&#39;}${(demographic.isNotEmpty) ? &#39;&amp;publicationDemographic[]=${demographic.join(&#39;&amp;publicationDemographic[]=&#39;)}&#39; : &#39;&#39;}&#39;),
+            &#39;https:&#47;&#47;api.mangadex.org&#47;manga?title=&amp;includes[]=author&amp;includes[]=artist&amp;includes[]=cover_art$mangaTitle${(authors.isNotEmpty) ? &#39;&amp;authors[]=${authors.join(&#39;&amp;authors[]=&#39;)}&#39; : &#39;&#39;}${(includedTags.isNotEmpty) ? &#39;&amp;includedTags[]=${includedTags.join(&#39;&amp;includedTags[]=&#39;)}&#39; : &#39;&#39;}${(excludedTags.isNotEmpty) ? &#39;&amp;excludedTags[]=${excludedTags.join(&#39;&amp;excludedTags[]=&#39;)}&#39; : &#39;&#39;}${(status.isNotEmpty) ? &#39;&amp;status[]=${status.join(&#39;&amp;status[]=&#39;)}&#39; : &#39;&#39;}${(demographic.isNotEmpty) ? &#39;&amp;publicationDemographic[]=${demographic.join(&#39;&amp;publicationDemographic[]=&#39;)}&#39; : &#39;&#39;}&#39;),
         headers: {HttpHeaders.authorizationHeader: &#39;Bearer $token&#39;});
   } else {
     res = await http.get(Uri.parse(
-        &#39;https:&#47;&#47;api.mangadex.org&#47;manga?title=$mangaTitle${(authors.isNotEmpty) ? &#39;&amp;authors[]=${authors.join(&#39;&amp;authors[]=&#39;)}&#39; : &#39;&#39;}${(includedTags.isNotEmpty) ? &#39;&amp;includedTags[]=${includedTags.join(&#39;&amp;includedTags[]=&#39;)}&#39; : &#39;&#39;}${(excludedTags.isNotEmpty) ? &#39;&amp;excludedTags[]=${excludedTags.join(&#39;&amp;excludedTags[]=&#39;)}&#39; : &#39;&#39;}${(status.isNotEmpty) ? &#39;&amp;status[]=${status.join(&#39;&amp;status[]=&#39;)}&#39; : &#39;&#39;}${(demographic.isNotEmpty) ? &#39;&amp;publicationDemographic[]=${demographic.join(&#39;&amp;publicationDemographic[]=&#39;)}&#39; : &#39;&#39;}&#39;));
+        &#39;https:&#47;&#47;api.mangadex.org&#47;manga?title=$mangaTitle&amp;includes[]=author&amp;includes[]=artist&amp;includes[]=cover_art${(authors.isNotEmpty) ? &#39;&amp;authors[]=${authors.join(&#39;&amp;authors[]=&#39;)}&#39; : &#39;&#39;}${(includedTags.isNotEmpty) ? &#39;&amp;includedTags[]=${includedTags.join(&#39;&amp;includedTags[]=&#39;)}&#39; : &#39;&#39;}${(excludedTags.isNotEmpty) ? &#39;&amp;excludedTags[]=${excludedTags.join(&#39;&amp;excludedTags[]=&#39;)}&#39; : &#39;&#39;}${(status.isNotEmpty) ? &#39;&amp;status[]=${status.join(&#39;&amp;status[]=&#39;)}&#39; : &#39;&#39;}${(demographic.isNotEmpty) ? &#39;&amp;publicationDemographic[]=${demographic.join(&#39;&amp;publicationDemographic[]=&#39;)}&#39; : &#39;&#39;}&#39;));
   }
   var data = jsonDecode(res.body);
   if (res.statusCode == 403 &amp;&amp; res.headers[&#39;X-Captcha-Sitekey&#39;] != null) {
@@ -171,7 +171,7 @@
           author = Author(
               name: rel[&#39;attributes&#39;][&#39;name&#39;],
               id: rel[&#39;id&#39;],
-              biography: Map.from(rel[&#39;attributes&#39;][&#39;biography&#39;]),
+              biography: rel[&#39;attributes&#39;][&#39;biography&#39;],
               imageUrl: rel[&#39;attributes&#39;][&#39;imageUrl&#39;]);
           break;
         case &#39;artist&#39;:
@@ -179,7 +179,7 @@
               name: rel[&#39;attributes&#39;][&#39;name&#39;],
               id: rel[&#39;id&#39;],
               imageUrl: rel[&#39;attributes&#39;][&#39;imageUrl&#39;],
-              biography: Map.from(rel[&#39;attributes&#39;][&#39;biography&#39;]));
+              biography: rel[&#39;attributes&#39;][&#39;biography&#39;]);
           break;
         case &#39;cover_art&#39;:
           cover =

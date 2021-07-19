@@ -139,7 +139,8 @@ If appending chapters, <code>translatedLang</code> should be either an empty <a 
             &#39;https:&#47;&#47;api.mangadex.org&#47;manga&#47;$uuid?includes[]=cover_art&amp;includes[]=author&amp;includes[]=artist&#39;),
         headers: {HttpHeaders.authorizationHeader: &#39;Bearer $token&#39;});
   } else {
-    res = await http.get(Uri.parse(&#39;https:&#47;&#47;api.mangadex.org&#47;manga&#47;$uuid&#39;));
+    res = await http.get(Uri.parse(
+        &#39;https:&#47;&#47;api.mangadex.org&#47;manga&#47;$uuid?includes[]=cover_art&amp;includes[]=author&amp;includes[]=artist&#39;));
   }
   var body = jsonDecode(res.body);
   var data = body[&#39;data&#39;];
@@ -164,7 +165,7 @@ If appending chapters, <code>translatedLang</code> should be either an empty <a 
         author = Author(
             name: rel[&#39;attributes&#39;][&#39;name&#39;],
             id: rel[&#39;id&#39;],
-            biography: Map.from(rel[&#39;attributes&#39;][&#39;biography&#39;]),
+            biography: rel[&#39;attributes&#39;][&#39;biography&#39;],
             imageUrl: rel[&#39;attributes&#39;][&#39;imageUrl&#39;]);
         break;
       case &#39;artist&#39;:
@@ -172,7 +173,7 @@ If appending chapters, <code>translatedLang</code> should be either an empty <a 
             name: rel[&#39;attributes&#39;][&#39;name&#39;],
             id: rel[&#39;id&#39;],
             imageUrl: rel[&#39;attributes&#39;][&#39;imageUrl&#39;],
-            biography: Map.from(rel[&#39;attributes&#39;][&#39;biography&#39;]));
+            biography: rel[&#39;attributes&#39;][&#39;biography&#39;]);
         break;
       case &#39;cover_art&#39;:
         cover =
