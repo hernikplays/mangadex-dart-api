@@ -170,7 +170,8 @@ class MDClient {
               'https://api.mangadex.org/manga/$uuid?includes[]=cover_art&includes[]=author&includes[]=artist'),
           headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
     } else {
-      res = await http.get(Uri.parse('https://api.mangadex.org/manga/$uuid'));
+      res = await http.get(Uri.parse(
+          'https://api.mangadex.org/manga/$uuid?includes[]=cover_art&includes[]=author&includes[]=artist'));
     }
     var body = jsonDecode(res.body);
     var data = body['data'];
@@ -195,7 +196,7 @@ class MDClient {
           author = Author(
               name: rel['attributes']['name'],
               id: rel['id'],
-              biography: Map.from(rel['attributes']['biography']),
+              biography: rel['attributes']['biography'],
               imageUrl: rel['attributes']['imageUrl']);
           break;
         case 'artist':
@@ -203,7 +204,7 @@ class MDClient {
               name: rel['attributes']['name'],
               id: rel['id'],
               imageUrl: rel['attributes']['imageUrl'],
-              biography: Map.from(rel['attributes']['biography']));
+              biography: rel['attributes']['biography']);
           break;
         case 'cover_art':
           cover =
@@ -295,11 +296,11 @@ class MDClient {
     if (token != '' && useLogin) {
       res = await http.get(
           Uri.parse(
-              'https://api.mangadex.org/manga?title=$mangaTitle${(authors.isNotEmpty) ? '&authors[]=${authors.join('&authors[]=')}' : ''}${(includedTags.isNotEmpty) ? '&includedTags[]=${includedTags.join('&includedTags[]=')}' : ''}${(excludedTags.isNotEmpty) ? '&excludedTags[]=${excludedTags.join('&excludedTags[]=')}' : ''}${(status.isNotEmpty) ? '&status[]=${status.join('&status[]=')}' : ''}${(demographic.isNotEmpty) ? '&publicationDemographic[]=${demographic.join('&publicationDemographic[]=')}' : ''}'),
+              'https://api.mangadex.org/manga?title=&includes[]=author&includes[]=artist&includes[]=cover_art$mangaTitle${(authors.isNotEmpty) ? '&authors[]=${authors.join('&authors[]=')}' : ''}${(includedTags.isNotEmpty) ? '&includedTags[]=${includedTags.join('&includedTags[]=')}' : ''}${(excludedTags.isNotEmpty) ? '&excludedTags[]=${excludedTags.join('&excludedTags[]=')}' : ''}${(status.isNotEmpty) ? '&status[]=${status.join('&status[]=')}' : ''}${(demographic.isNotEmpty) ? '&publicationDemographic[]=${demographic.join('&publicationDemographic[]=')}' : ''}'),
           headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
     } else {
       res = await http.get(Uri.parse(
-          'https://api.mangadex.org/manga?title=$mangaTitle${(authors.isNotEmpty) ? '&authors[]=${authors.join('&authors[]=')}' : ''}${(includedTags.isNotEmpty) ? '&includedTags[]=${includedTags.join('&includedTags[]=')}' : ''}${(excludedTags.isNotEmpty) ? '&excludedTags[]=${excludedTags.join('&excludedTags[]=')}' : ''}${(status.isNotEmpty) ? '&status[]=${status.join('&status[]=')}' : ''}${(demographic.isNotEmpty) ? '&publicationDemographic[]=${demographic.join('&publicationDemographic[]=')}' : ''}'));
+          'https://api.mangadex.org/manga?title=$mangaTitle&includes[]=author&includes[]=artist&includes[]=cover_art${(authors.isNotEmpty) ? '&authors[]=${authors.join('&authors[]=')}' : ''}${(includedTags.isNotEmpty) ? '&includedTags[]=${includedTags.join('&includedTags[]=')}' : ''}${(excludedTags.isNotEmpty) ? '&excludedTags[]=${excludedTags.join('&excludedTags[]=')}' : ''}${(status.isNotEmpty) ? '&status[]=${status.join('&status[]=')}' : ''}${(demographic.isNotEmpty) ? '&publicationDemographic[]=${demographic.join('&publicationDemographic[]=')}' : ''}'));
     }
     var data = jsonDecode(res.body);
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
@@ -323,7 +324,7 @@ class MDClient {
             author = Author(
                 name: rel['attributes']['name'],
                 id: rel['id'],
-                biography: Map.from(rel['attributes']['biography']),
+                biography: rel['attributes']['biography'],
                 imageUrl: rel['attributes']['imageUrl']);
             break;
           case 'artist':
@@ -331,7 +332,7 @@ class MDClient {
                 name: rel['attributes']['name'],
                 id: rel['id'],
                 imageUrl: rel['attributes']['imageUrl'],
-                biography: Map.from(rel['attributes']['biography']));
+                biography: rel['attributes']['biography']);
             break;
           case 'cover_art':
             cover =

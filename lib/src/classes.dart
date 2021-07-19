@@ -222,8 +222,8 @@ class Author {
   /// Author's/Artist's name
   final String name;
 
-  /// Author's/Artist's biography
-  final Map<String, dynamic> biography;
+  /// Author's/Artist's biographies
+  final List<dynamic> biography;
 
   /// Author's/Artist's id
   final String id;
