@@ -491,4 +491,14 @@ class MDClient {
 
     return groups;
   }
+
+  Future<void> logout() async {
+    if (token == '') return;
+    var res = await http.post(Uri.parse('https://api.mangadex.org/auth/logout'),
+        headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+    var data = jsonDecode(res.body);
+    if (res.statusCode != 200) {
+      throw 'An error has happened: ${data["errors"][0]["title"]} - ${data["errors"][0]["detail"]}';
+    }
+  }
 }
