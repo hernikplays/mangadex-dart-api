@@ -77,6 +77,7 @@
     <li><a href="../../mangadex_api/MDClient/getCovers.html">getCovers</a></li>
     <li><a href="../../mangadex_api/MDClient/getGroup.html">getGroup</a></li>
     <li><a href="../../mangadex_api/MDClient/getManga.html">getManga</a></li>
+    <li><a href="../../mangadex_api/MDClient/getMangaFeed.html">getMangaFeed</a></li>
     <li><a href="../../mangadex_api/MDClient/getUser.html">getUser</a></li>
     <li><a href="../../mangadex_api/MDClient/login.html">login</a></li>
     <li><a href="../../mangadex_api/MDClient/logout.html">logout</a></li>
@@ -145,10 +146,15 @@
     res = await http.get(
         Uri.parse(
             &#39;https:&#47;&#47;api.mangadex.org&#47;manga?title=&amp;includes[]=author&amp;includes[]=artist&amp;includes[]=cover_art$mangaTitle${(authors.isNotEmpty) ? &#39;&amp;authors[]=${authors.join(&#39;&amp;authors[]=&#39;)}&#39; : &#39;&#39;}${(includedTags.isNotEmpty) ? &#39;&amp;includedTags[]=${includedTags.join(&#39;&amp;includedTags[]=&#39;)}&#39; : &#39;&#39;}${(excludedTags.isNotEmpty) ? &#39;&amp;excludedTags[]=${excludedTags.join(&#39;&amp;excludedTags[]=&#39;)}&#39; : &#39;&#39;}${(status.isNotEmpty) ? &#39;&amp;status[]=${status.join(&#39;&amp;status[]=&#39;)}&#39; : &#39;&#39;}${(demographic.isNotEmpty) ? &#39;&amp;publicationDemographic[]=${demographic.join(&#39;&amp;publicationDemographic[]=&#39;)}&#39; : &#39;&#39;}&#39;),
-        headers: {HttpHeaders.authorizationHeader: &#39;Bearer $token&#39;});
+        headers: {
+          HttpHeaders.authorizationHeader: &#39;Bearer $token&#39;,
+          HttpHeaders.userAgentHeader: &#39;mangadex_dart_api&#47;1.0&#39;
+        });
   } else {
-    res = await http.get(Uri.parse(
-        &#39;https:&#47;&#47;api.mangadex.org&#47;manga?title=$mangaTitle&amp;includes[]=author&amp;includes[]=artist&amp;includes[]=cover_art${(authors.isNotEmpty) ? &#39;&amp;authors[]=${authors.join(&#39;&amp;authors[]=&#39;)}&#39; : &#39;&#39;}${(includedTags.isNotEmpty) ? &#39;&amp;includedTags[]=${includedTags.join(&#39;&amp;includedTags[]=&#39;)}&#39; : &#39;&#39;}${(excludedTags.isNotEmpty) ? &#39;&amp;excludedTags[]=${excludedTags.join(&#39;&amp;excludedTags[]=&#39;)}&#39; : &#39;&#39;}${(status.isNotEmpty) ? &#39;&amp;status[]=${status.join(&#39;&amp;status[]=&#39;)}&#39; : &#39;&#39;}${(demographic.isNotEmpty) ? &#39;&amp;publicationDemographic[]=${demographic.join(&#39;&amp;publicationDemographic[]=&#39;)}&#39; : &#39;&#39;}&#39;));
+    res = await http.get(
+        Uri.parse(
+            &#39;https:&#47;&#47;api.mangadex.org&#47;manga?title=$mangaTitle&amp;includes[]=author&amp;includes[]=artist&amp;includes[]=cover_art${(authors.isNotEmpty) ? &#39;&amp;authors[]=${authors.join(&#39;&amp;authors[]=&#39;)}&#39; : &#39;&#39;}${(includedTags.isNotEmpty) ? &#39;&amp;includedTags[]=${includedTags.join(&#39;&amp;includedTags[]=&#39;)}&#39; : &#39;&#39;}${(excludedTags.isNotEmpty) ? &#39;&amp;excludedTags[]=${excludedTags.join(&#39;&amp;excludedTags[]=&#39;)}&#39; : &#39;&#39;}${(status.isNotEmpty) ? &#39;&amp;status[]=${status.join(&#39;&amp;status[]=&#39;)}&#39; : &#39;&#39;}${(demographic.isNotEmpty) ? &#39;&amp;publicationDemographic[]=${demographic.join(&#39;&amp;publicationDemographic[]=&#39;)}&#39; : &#39;&#39;}&#39;),
+        headers: {HttpHeaders.userAgentHeader: &#39;mangadex_dart_api&#47;1.0&#39;});
   }
   var data = jsonDecode(res.body);
   if (res.statusCode == 403 &amp;&amp; res.headers[&#39;X-Captcha-Sitekey&#39;] != null) {
