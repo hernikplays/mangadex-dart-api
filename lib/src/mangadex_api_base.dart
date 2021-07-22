@@ -78,14 +78,16 @@ class MDClient {
     if (token != '') {
       res = await http.post(
         Uri.parse('https://api.mangadex.org/auth/solve'),
-        headers: {HttpHeaders.authorizationHeader: 'Bearer $token'},
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer $token',
+          HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
+        },
         body: '{"captchaChallenge":"$captchaResult"}',
       );
     } else {
-      res = await http.post(
-        Uri.parse('https://api.mangadex.org/auth/solve'),
-        body: '{"captchaChallenge":"$captchaResult"}',
-      );
+      res = await http.post(Uri.parse('https://api.mangadex.org/auth/solve'),
+          body: '{"captchaChallenge":"$captchaResult"}',
+          headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
     }
     var data = jsonDecode(res.body);
     if (res.statusCode == 400) {
@@ -99,10 +101,14 @@ class MDClient {
   Future<Chapter?> getChapter(String uuid, {bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
-      res = await http.get(Uri.parse('https://api.mangadex.org/chapter/$uuid'),
-          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+      res = await http
+          .get(Uri.parse('https://api.mangadex.org/chapter/$uuid'), headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+        HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
+      });
     } else {
-      res = await http.get(Uri.parse('https://api.mangadex.org/chapter/$uuid'));
+      res = await http.get(Uri.parse('https://api.mangadex.org/chapter/$uuid'),
+          headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
     }
 
     if (res.statusCode == 404) {
@@ -118,7 +124,8 @@ class MDClient {
 
     // get MD@H URL
     var md = await http.get(
-        Uri.parse("https://api.mangadex.org/at-home/server/${data['id']}"));
+        Uri.parse("https://api.mangadex.org/at-home/server/${data['id']}"),
+        headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
     var atHomeURL = jsonDecode(md.body)['baseUrl'];
 
     // create chapter URL
@@ -168,10 +175,15 @@ class MDClient {
       res = await http.get(
           Uri.parse(
               'https://api.mangadex.org/manga/$uuid?includes[]=cover_art&includes[]=author&includes[]=artist'),
-          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+          headers: {
+            HttpHeaders.authorizationHeader: 'Bearer $token',
+            HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
+          });
     } else {
-      res = await http.get(Uri.parse(
-          'https://api.mangadex.org/manga/$uuid?includes[]=cover_art&includes[]=author&includes[]=artist'));
+      res = await http.get(
+          Uri.parse(
+              'https://api.mangadex.org/manga/$uuid?includes[]=cover_art&includes[]=author&includes[]=artist'),
+          headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
     }
     var body = jsonDecode(res.body);
     var data = body['data'];
@@ -185,8 +197,9 @@ class MDClient {
     Map<String, dynamic> chapters = {};
     // append available chapters from other API endpoint
     if (appendChapters) {
-      var chres = await http
-          .get(Uri.parse('https://api.mangadex.org/manga/$uuid/aggregate'));
+      var chres = await http.get(
+          Uri.parse('https://api.mangadex.org/manga/$uuid/aggregate'),
+          headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
       chapters = Map.from(jsonDecode(chres.body)['volumes']);
     }
     var cover, author, artist;
@@ -252,10 +265,14 @@ class MDClient {
     if (token != '' && useLogin) {
       res = await http.get(
           Uri.parse('https://api.mangadex.org/cover?manga[]=$mangaUuid'),
-          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+          headers: {
+            HttpHeaders.authorizationHeader: 'Bearer $token',
+            HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
+          });
     } else {
-      res = await http
-          .get(Uri.parse('https://api.mangadex.org/cover?manga[]=$mangaUuid'));
+      res = await http.get(
+          Uri.parse('https://api.mangadex.org/cover?manga[]=$mangaUuid'),
+          headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
     }
     if (res.statusCode == 404) {
       return null;
@@ -297,10 +314,15 @@ class MDClient {
       res = await http.get(
           Uri.parse(
               'https://api.mangadex.org/manga?title=&includes[]=author&includes[]=artist&includes[]=cover_art$mangaTitle${(authors.isNotEmpty) ? '&authors[]=${authors.join('&authors[]=')}' : ''}${(includedTags.isNotEmpty) ? '&includedTags[]=${includedTags.join('&includedTags[]=')}' : ''}${(excludedTags.isNotEmpty) ? '&excludedTags[]=${excludedTags.join('&excludedTags[]=')}' : ''}${(status.isNotEmpty) ? '&status[]=${status.join('&status[]=')}' : ''}${(demographic.isNotEmpty) ? '&publicationDemographic[]=${demographic.join('&publicationDemographic[]=')}' : ''}'),
-          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+          headers: {
+            HttpHeaders.authorizationHeader: 'Bearer $token',
+            HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
+          });
     } else {
-      res = await http.get(Uri.parse(
-          'https://api.mangadex.org/manga?title=$mangaTitle&includes[]=author&includes[]=artist&includes[]=cover_art${(authors.isNotEmpty) ? '&authors[]=${authors.join('&authors[]=')}' : ''}${(includedTags.isNotEmpty) ? '&includedTags[]=${includedTags.join('&includedTags[]=')}' : ''}${(excludedTags.isNotEmpty) ? '&excludedTags[]=${excludedTags.join('&excludedTags[]=')}' : ''}${(status.isNotEmpty) ? '&status[]=${status.join('&status[]=')}' : ''}${(demographic.isNotEmpty) ? '&publicationDemographic[]=${demographic.join('&publicationDemographic[]=')}' : ''}'));
+      res = await http.get(
+          Uri.parse(
+              'https://api.mangadex.org/manga?title=$mangaTitle&includes[]=author&includes[]=artist&includes[]=cover_art${(authors.isNotEmpty) ? '&authors[]=${authors.join('&authors[]=')}' : ''}${(includedTags.isNotEmpty) ? '&includedTags[]=${includedTags.join('&includedTags[]=')}' : ''}${(excludedTags.isNotEmpty) ? '&excludedTags[]=${excludedTags.join('&excludedTags[]=')}' : ''}${(status.isNotEmpty) ? '&status[]=${status.join('&status[]=')}' : ''}${(demographic.isNotEmpty) ? '&publicationDemographic[]=${demographic.join('&publicationDemographic[]=')}' : ''}'),
+          headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
     }
     var data = jsonDecode(res.body);
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
@@ -378,10 +400,14 @@ class MDClient {
   Future<User?> getUser(String uuid, {bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
-      res = await http.get(Uri.parse('https://api.mangadex.org/user/$uuid'),
-          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+      res = await http
+          .get(Uri.parse('https://api.mangadex.org/user/$uuid'), headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+        HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
+      });
     } else {
-      res = await http.get(Uri.parse('https://api.mangadex.org/user/$uuid'));
+      res = await http.get(Uri.parse('https://api.mangadex.org/user/$uuid'),
+          headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
     }
     var data = jsonDecode(res.body)['data'];
 
@@ -405,10 +431,13 @@ class MDClient {
   Future<Group?> getGroup(String uuid, {bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
-      res = await http.get(Uri.parse('  $uuid'),
-          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+      res = await http.get(Uri.parse('  $uuid'), headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+        HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
+      });
     } else {
-      res = await http.get(Uri.parse('https://api.mangadex.org/group/$uuid'));
+      res = await http.get(Uri.parse('https://api.mangadex.org/group/$uuid'),
+          headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
     }
     var data = jsonDecode(res.body)['data'];
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
@@ -449,10 +478,15 @@ class MDClient {
       res = await http.get(
           Uri.parse(
               'https://api.mangadex.org/group?name=$name${(ids.isNotEmpty) ? '&ids[]=${ids.join('&ids[]=')}' : ''}'),
-          headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+          headers: {
+            HttpHeaders.authorizationHeader: 'Bearer $token',
+            HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
+          });
     } else {
-      res = await http.get(Uri.parse(
-          'https://api.mangadex.org/group?name=$name${(ids.isNotEmpty) ? '&ids[]=${ids.join('&ids[]=')}' : ''}'));
+      res = await http.get(
+          Uri.parse(
+              'https://api.mangadex.org/group?name=$name${(ids.isNotEmpty) ? '&ids[]=${ids.join('&ids[]=')}' : ''}'),
+          headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
     }
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
       throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
@@ -494,8 +528,11 @@ class MDClient {
 
   Future<void> logout() async {
     if (token == '') return;
-    var res = await http.post(Uri.parse('https://api.mangadex.org/auth/logout'),
-        headers: {HttpHeaders.authorizationHeader: 'Bearer $token'});
+    var res = await http
+        .post(Uri.parse('https://api.mangadex.org/auth/logout'), headers: {
+      HttpHeaders.authorizationHeader: 'Bearer $token',
+      HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
+    });
     var data = jsonDecode(res.body);
     if (res.statusCode != 200) {
       throw 'An error has happened: ${data["errors"][0]["title"]} - ${data["errors"][0]["detail"]}';
