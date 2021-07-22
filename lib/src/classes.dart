@@ -7,10 +7,10 @@ class Chapter {
   final String title;
 
   /// Volume number, is [Null] if not specified in API
-  final String? volume;
+  final String? volumeNum;
 
   /// Chapter number, is [Null] if not specified in API
-  final String? chapter;
+  final String? chapterNum;
 
   /// Language of the chapter
   final String translatedLanguage;
@@ -47,8 +47,8 @@ class Chapter {
       required this.title,
       required this.translatedLanguage,
       required this.chapterURLs,
-      this.volume,
-      this.chapter});
+      this.volumeNum,
+      this.chapterNum});
 }
 
 /// Holds data about a Manga

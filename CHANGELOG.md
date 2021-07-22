@@ -8,6 +8,7 @@
 - **renamed `getMangaInfo` to `getManga`**
 - added reference expansion to `getManga` and `search`
 - login now **returns a Future**
+- **changed in Chapter class: `chapter -> chapterNum` & `volume -> volumeNum`**
 
 For more changes check out the [documentation](https://hernikplays.cz/mangadex-dart-api/1.0.0-dev.2/mangadex_api/mangadex_api-library.html)
 

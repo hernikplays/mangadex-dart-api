@@ -145,8 +145,8 @@ class MDClient {
     var chapter = Chapter(
         id: data['id'],
         title: data['attributes']['title'],
-        volume: data['attributes']['volume'],
-        chapter: data['attributes']['chapter'],
+        volumeNum: data['attributes']['volume'],
+        chapterNum: data['attributes']['chapter'],
         translatedLanguage: data['attributes']['translatedLanguage'],
         chapterURLs: normalChapter,
         dataSaverChapterURLs: saverChapter,
@@ -594,8 +594,8 @@ class MDClient {
           id: r['id'],
           title: r['attributes']['title'],
           translatedLanguage: r['attributes']['translatedLanguage'],
-          volume: r['attributes']['volume'],
-          chapter: r['attributes']['chapter'],
+          volumeNum: r['attributes']['volume'],
+          chapterNum: r['attributes']['chapter'],
           createdAt: r['attributes']['createdAt'],
           updatedAt: r['attributes']['updatedAt'],
           uploader: r['attributes']['uploaded']));

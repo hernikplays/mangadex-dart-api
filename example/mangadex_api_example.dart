@@ -32,7 +32,7 @@ void main() {
     });
 
     client.getMangaFeed().then((value) {
-      print(value[0].chapter);
+      print(value[0].chapterNum);
     });
   });
 }
