@@ -22,29 +22,28 @@ class MDClient {
   /// var client = MDClient()
   /// client.login('myuser','mypassword')
   /// ```
-  void login(String username, String password) {
-    http.post(Uri.parse('https://api.mangadex.org/auth/login'),
+  Future<void> login(String username, String password) async {
+    var res = await http.post(Uri.parse('https://api.mangadex.org/auth/login'),
         body: '{"username":"$username","password":"$password"}',
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
-        }).then((res) {
-      if (res.statusCode == 401) {
-        throw 'User and Password does not match';
-      } else if (res.statusCode == 400) {
-        throw 'Bad request';
-      }
-      var data = jsonDecode(res.body);
+        });
+    if (res.statusCode == 401) {
+      throw 'User and Password does not match';
+    } else if (res.statusCode == 400) {
+      throw 'Bad request';
+    }
+    var data = jsonDecode(res.body);
 
-      if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
-        throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
-            message:
-                'You need to solve a captcha, check `.sitekey` for the sitekey.');
-      }
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
 
-      token = data['token']['session'];
-      refresh = data['token']['refresh'];
-    });
+    token = data['token']['session'];
+    refresh = data['token']['refresh'];
   }
 
   /// Refreshes the auth token using the saved refresh token
@@ -526,6 +525,7 @@ class MDClient {
     return groups;
   }
 
+  /// Invalidates current sesssion
   Future<void> logout() async {
     if (token == '') return;
     var res = await http
@@ -534,8 +534,72 @@ class MDClient {
       HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
     });
     var data = jsonDecode(res.body);
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
     if (res.statusCode != 200) {
       throw 'An error has happened: ${data["errors"][0]["title"]} - ${data["errors"][0]["detail"]}';
     }
+    token = '';
+    refresh = '';
+  }
+
+  /// Returns the latest chapters of the currently logged in user's followed manga
+  ///
+  /// If you did not login, this will return an empty [List]
+  Future<List<Chapter>> getMangaFeed() async {
+    // ignore: omit_local_variable_types
+    List<Chapter> chapters = [];
+    if (token == '') return chapters;
+    var res = await http.get(
+        Uri.parse('https://api.mangadex.org/user/follows/manga/feed'),
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer $token',
+          HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
+        });
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    var data = jsonDecode(res.body)['results'];
+    for (var chapter in data) {
+      var r = chapter['data'];
+      // get MD@H URL
+      var md = await http.get(
+          Uri.parse("https://api.mangadex.org/at-home/server/${r['id']}"),
+          headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
+      var atHomeURL = jsonDecode(md.body)['baseUrl'];
+
+      // create chapter URL
+      // ignore: omit_local_variable_types
+      List<String> normalChapter = [];
+      for (var chapter in r['attributes']['data']) {
+        normalChapter
+            .add('$atHomeURL/data/${r["attributes"]["hash"]}/$chapter');
+      }
+
+      // create data-saver URL
+      // ignore: omit_local_variable_types
+      List<String> saverChapter = [];
+      for (var chapter in r['attributes']['data']) {
+        saverChapter
+            .add('$atHomeURL/data-saver/${r["attributes"]["hash"]}/$chapter');
+      }
+      chapters.add(Chapter(
+          chapterURLs: normalChapter,
+          dataSaverChapterURLs: saverChapter,
+          id: r['id'],
+          title: r['attributes']['title'],
+          translatedLanguage: r['attributes']['translatedLanguage'],
+          volume: r['attributes']['volume'],
+          chapter: r['attributes']['chapter'],
+          createdAt: r['attributes']['createdAt'],
+          updatedAt: r['attributes']['updatedAt'],
+          uploader: r['attributes']['uploaded']));
+    }
+    return chapters;
   }
 }
