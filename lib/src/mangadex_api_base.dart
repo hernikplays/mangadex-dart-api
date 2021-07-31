@@ -14,6 +14,29 @@ class MDClient {
 
   MDClient({this.token = '', this.refresh = ''});
 
+  /// Helper function for generating chapter URL
+  Future<Map<String, List<String>>> generateChapter(r) async {
+    // get MD@H URL
+    var md = await http.get(
+        Uri.parse("https://api.mangadex.org/at-home/server/${r['id']}"),
+        headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
+    var atHomeURL = jsonDecode(md.body)['baseUrl'];
+
+    // create chapter URL
+    var normalChapter = <String>[];
+    for (var chapter in r['attributes']['data']) {
+      normalChapter.add('$atHomeURL/data/${r["attributes"]["hash"]}/$chapter');
+    }
+
+    // create data-saver URL
+    var saverChapter = <String>[];
+    for (var chapter in r['attributes']['data']) {
+      saverChapter
+          .add('$atHomeURL/data-saver/${r["attributes"]["hash"]}/$chapter');
+    }
+    return {'normal': normalChapter, 'saver': saverChapter};
+  }
+
   /// Gets the JWT and refresh token through the API
   ///
   /// Will throw an [Exception] if the password and user do not match OR API returns a 400
@@ -121,27 +144,10 @@ class MDClient {
               'You need to solve a captcha, check `.sitekey` for the sitekey.');
     }
 
-    // get MD@H URL
-    var md = await http.get(
-        Uri.parse("https://api.mangadex.org/at-home/server/${data['id']}"),
-        headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
-    var atHomeURL = jsonDecode(md.body)['baseUrl'];
+    var getme = await generateChapter(data);
+    var normalChapter = getme['normal']!;
+    var saverChapter = getme['saver']!;
 
-    // create chapter URL
-    // ignore: omit_local_variable_types
-    List<String> normalChapter = [];
-    for (var chapter in data['attributes']['data']) {
-      normalChapter
-          .add('$atHomeURL/data/${data["attributes"]["hash"]}/$chapter');
-    }
-
-    // create data-saver URL
-    // ignore: omit_local_variable_types
-    List<String> saverChapter = [];
-    for (var chapter in data['attributes']['data']) {
-      saverChapter
-          .add('$atHomeURL/data-saver/${data["attributes"]["hash"]}/$chapter');
-    }
     var chapter = Chapter(
         id: data['id'],
         title: data['attributes']['title'],
@@ -430,15 +436,21 @@ class MDClient {
   Future<Group?> getGroup(String uuid, {bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
-      res = await http.get(Uri.parse('  $uuid'), headers: {
-        HttpHeaders.authorizationHeader: 'Bearer $token',
-        HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
-      });
+      res = await http.get(
+          Uri.parse(
+              'https://api.mangadex.org/group/$uuid?includes[]=leader&includes[]=member'),
+          headers: {
+            HttpHeaders.authorizationHeader: 'Bearer $token',
+            HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
+          });
     } else {
-      res = await http.get(Uri.parse('https://api.mangadex.org/group/$uuid'),
+      res = await http.get(
+          Uri.parse(
+              'https://api.mangadex.org/group/$uuid?includes[]=leader&includes[]=member'),
           headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
     }
-    var data = jsonDecode(res.body)['data'];
+    var body = jsonDecode(res.body);
+    var data = body['data'];
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
       throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
           message:
@@ -447,6 +459,19 @@ class MDClient {
     if (res.statusCode == 404) {
       return null;
     }
+
+    var members = <User>[];
+    var leader;
+    for (var member in body['relationships']) {
+      if (member['type'] == 'member') {
+        members.add(
+            User(id: member['id'], username: member['attributes']['username']));
+      } else if (member['type'] == 'leader') {
+        leader =
+            User(id: member['id'], username: member['attributes']['username']);
+      }
+    }
+
     var group = Group(
         id: data['id'],
         name: data['attributes']['name'],
@@ -459,9 +484,7 @@ class MDClient {
         ircServer: data['attributes']['ircServer'],
         discord: data['attributes']['discord'],
         contactEmail: data['attributes']['contactEmail'],
-        leader: User(
-            id: data['attributes']['leader']['id'],
-            username: data['attributes']['leader']['attributes']['username']));
+        leader: leader);
     return group;
   }
 
@@ -476,7 +499,7 @@ class MDClient {
     if (token != '' && useLogin) {
       res = await http.get(
           Uri.parse(
-              'https://api.mangadex.org/group?name=$name${(ids.isNotEmpty) ? '&ids[]=${ids.join('&ids[]=')}' : ''}'),
+              'https://api.mangadex.org/group?name=$name&includes[]=leader&includes[]=member${(ids.isNotEmpty) ? '&ids[]=${ids.join('&ids[]=')}' : ''}'),
           headers: {
             HttpHeaders.authorizationHeader: 'Bearer $token',
             HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
@@ -484,7 +507,7 @@ class MDClient {
     } else {
       res = await http.get(
           Uri.parse(
-              'https://api.mangadex.org/group?name=$name${(ids.isNotEmpty) ? '&ids[]=${ids.join('&ids[]=')}' : ''}'),
+              'https://api.mangadex.org/group?name=$name&includes[]=leader&includes[]=member${(ids.isNotEmpty) ? '&ids[]=${ids.join('&ids[]=')}' : ''}'),
           headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
     }
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
@@ -498,11 +521,17 @@ class MDClient {
 
     for (var group in data) {
       var r = group['data'];
-      // ignore: omit_local_variable_types
-      List<User> members = [];
-      for (var member in r['attributes']['members']) {
-        members.add(
-            User(id: member['id'], username: member['attributes']['username']));
+
+      var members = <User>[];
+      var leader;
+      for (var member in group['relationships']) {
+        if (member['type'] == 'member') {
+          members.add(User(
+              id: member['id'], username: member['attributes']['username']));
+        } else if (member['type'] == 'leader') {
+          leader = User(
+              id: member['id'], username: member['attributes']['username']);
+        }
       }
       groups.add(Group(
           id: r['id'],
@@ -516,9 +545,7 @@ class MDClient {
           ircServer: r['attributes']['ircServer'],
           discord: r['attributes']['discord'],
           contactEmail: r['attributes']['contactEmail'],
-          leader: User(
-              id: r['attributes']['leader']['id'],
-              username: r['attributes']['leader']['attributes']['username']),
+          leader: leader,
           members: members));
     }
 
@@ -567,27 +594,77 @@ class MDClient {
     var data = jsonDecode(res.body)['results'];
     for (var chapter in data) {
       var r = chapter['data'];
-      // get MD@H URL
-      var md = await http.get(
-          Uri.parse("https://api.mangadex.org/at-home/server/${r['id']}"),
-          headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
-      var atHomeURL = jsonDecode(md.body)['baseUrl'];
 
-      // create chapter URL
-      // ignore: omit_local_variable_types
-      List<String> normalChapter = [];
-      for (var chapter in r['attributes']['data']) {
-        normalChapter
-            .add('$atHomeURL/data/${r["attributes"]["hash"]}/$chapter');
-      }
+      var getme = await generateChapter(r);
+      var normalChapter = getme['normal']!;
+      var saverChapter = getme['saver']!;
 
-      // create data-saver URL
-      // ignore: omit_local_variable_types
-      List<String> saverChapter = [];
-      for (var chapter in r['attributes']['data']) {
-        saverChapter
-            .add('$atHomeURL/data-saver/${r["attributes"]["hash"]}/$chapter');
-      }
+      chapters.add(Chapter(
+          chapterURLs: normalChapter,
+          dataSaverChapterURLs: saverChapter,
+          id: r['id'],
+          title: r['attributes']['title'],
+          translatedLanguage: r['attributes']['translatedLanguage'],
+          volumeNum: r['attributes']['volume'],
+          chapterNum: r['attributes']['chapter'],
+          createdAt: r['attributes']['createdAt'],
+          updatedAt: r['attributes']['updatedAt'],
+          uploader: r['attributes']['uploaded']));
+    }
+    return chapters;
+  }
+
+  /// Gets logged in user's CustomLists
+  ///
+  /// Returns an empty [List] if no user is logged in
+  Future<List<GenericObject>> getUsersLists() async {
+    if (token == '') return <GenericObject>[];
+    var res = await http
+        .get(Uri.parse('https://api.mangadex.org/user/list'), headers: {
+      HttpHeaders.authorizationHeader: 'Bearer: $token',
+      HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
+    });
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    var data = jsonDecode(res.body)['results'];
+    var objects = <GenericObject>[];
+    for (var result in data) {
+      objects.add(GenericObject(
+          id: result['id'],
+          type: result['type'],
+          title: result['attributes']['name']));
+    }
+    return objects;
+  }
+
+  /// Gets a CustomList chapter feed
+  ///
+  /// Returns an empty list if
+  /// a) CustomList was not found or you don't have access to it.
+  /// b) You're not logged in
+  Future<List<Chapter>> getListFeed(id) async {
+    if (token == '' || id == '') return <Chapter>[];
+    var res = await http
+        .get(Uri.parse('https://api.mangadex.org/list/$id/feed'), headers: {
+      HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
+      HttpHeaders.authorizationHeader: 'Bearer: $token'
+    });
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    var data = jsonDecode(res.body)['results'];
+    var chapters = <Chapter>[];
+    for (var chap in data) {
+      var r = chap['data'];
+      var getme = await generateChapter(r);
+      var normalChapter = getme['normal']!;
+      var saverChapter = getme['saver']!;
+
       chapters.add(Chapter(
           chapterURLs: normalChapter,
           dataSaverChapterURLs: saverChapter,

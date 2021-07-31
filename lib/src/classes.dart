@@ -237,3 +237,17 @@ class Author {
       required this.id,
       this.imageUrl});
 }
+
+/// Anything that does not have additional attributes than these
+class GenericObject {
+  /// Object's ID
+  String id;
+
+  /// Supplied title
+  String? title;
+
+  /// Object's type
+  String? type;
+
+  GenericObject({required this.id, this.title, this.type});
+}
