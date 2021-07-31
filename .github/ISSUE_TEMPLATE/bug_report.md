@@ -31,11 +31,10 @@ If applicable, add screenshots to help explain your problem.
 **Smartphone (please complete the following information if applicable):**
  - Device: [e.g. iPhone6]
  - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+ - Package version [e.g. 22]
 
 **Additional context**
 Add any other context about the problem here.
 
-** Mark this:**
+**Mark this:**
 - [ ] Yes, I have checked the internet and other bug reports for a solution and I believe I have not found one
