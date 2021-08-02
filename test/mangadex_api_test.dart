@@ -9,10 +9,16 @@ void main() {
       // Additional setup goes here.
     });
 
-    test('Chapter Test', () async {
+    test('Get Individual Chapter Test', () async {
       var chapter =
           await client.getChapter('5e8bc984-5f3f-4fb1-b6ee-cf7f3812b112');
       expect(chapter!.title, 'Knihovna');
+    });
+
+    test('Get Chapter by Manga ID', () async {
+      var chapter = await client.getChapter(null,
+          mangaId: 'd7037b2a-874a-4360-8a7b-07f2899152fd');
+      expect(chapter!.title, "Iruma-kun's Demon School");
     });
 
     test('Manga Test', () async {

@@ -4,7 +4,9 @@ void main() {
   // the "I don't want to use async function" way
   var client = MDClient();
   client.login('user', 'pass').then((v) {
-    client.getChapter('5e8bc984-5f3f-4fb1-b6ee-cf7f3812b112').then((chapter) {
+    client
+        .getChapter(null, mangaId: 'd7037b2a-874a-4360-8a7b-07f2899152fd')
+        .then((chapter) {
       print(chapter!.title);
     });
 
