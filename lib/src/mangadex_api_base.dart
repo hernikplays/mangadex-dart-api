@@ -117,7 +117,9 @@ class MDClient {
     }
   }
 
-  /// Gets the chapter specified by the UUID
+  /// Gets the chapter specified by the UUID OR allows searching for chapter by mangaId + mangaVolume and mangaChapter
+  ///
+  /// If both `uuid` and `mangaId` are [Null], throws an [Exception]
   ///
   /// Returns [Null] if no chapters found
   Future<Chapter?> getChapter(
@@ -127,7 +129,9 @@ class MDClient {
     String? mangaVolume,
     String? mangaChapter,
   }) async {
-    // TODO Throw CustomException if both the uuid, and the mangaId are not provided.
+    if (uuid == null && mangaId == null) {
+      throw 'You need to specify the chapter UUID or the mangaId';
+    }
 
     http.Response res;
 
@@ -168,7 +172,7 @@ class MDClient {
     var unparsedData = jsonDecode(res.body);
     Map<String, dynamic> data;
     if (unparsedData['data'] == null) {
-      print(unparsedData);
+      //print(unparsedData);
       final resultsList = List.from(unparsedData['results']);
       data = resultsList[0]['data'];
       // data = unparsedData['results']['0']['data'];
