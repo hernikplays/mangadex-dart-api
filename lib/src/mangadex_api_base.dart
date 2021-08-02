@@ -120,26 +120,64 @@ class MDClient {
   /// Gets the chapter specified by the UUID
   ///
   /// Returns [Null] if no chapters found
-  Future<Chapter?> getChapter(String uuid, {bool useLogin = false}) async {
-    var res;
+  Future<Chapter?> getChapter(
+    String? uuid, {
+    bool useLogin = false,
+    String? mangaId,
+    String? mangaVolume,
+    String? mangaChapter,
+  }) async {
+    // TODO Throw CustomException if both the uuid, and the mangaId are not provided.
+
+    http.Response res;
+
+    // Made query params that are optional.
+    final queryParams = {
+      'manga': mangaId,
+      'volume': mangaVolume,
+      'chapter': mangaChapter,
+    }..removeWhere((key, value) => value == null);
+
+    // If no chapter UUID is provided it will use the normal '/chapter' endpoint.
+    final chapterString = uuid != null ? '/chapter/$uuid' : '/chapter';
+
+    final uriParams = Uri.https(
+      'api.mangadex.org',
+      chapterString,
+      queryParams,
+    );
+
     if (token != '' && useLogin) {
-      res = await http
-          .get(Uri.parse('https://api.mangadex.org/chapter/$uuid'), headers: {
+      res = await http.get(uriParams, headers: {
         HttpHeaders.authorizationHeader: 'Bearer $token',
         HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
       });
     } else {
-      res = await http.get(Uri.parse('https://api.mangadex.org/chapter/$uuid'),
-          headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
+      res = await http.get(
+        uriParams,
+        headers: {
+          HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
+        },
+      );
     }
 
     if (res.statusCode == 404) {
       return null;
     }
 
-    var data = jsonDecode(res.body)['data'];
+    var unparsedData = jsonDecode(res.body);
+    Map<String, dynamic> data;
+    if (unparsedData['data'] == null) {
+      print(unparsedData);
+      final resultsList = List.from(unparsedData['results']);
+      data = resultsList[0]['data'];
+      // data = unparsedData['results']['0']['data'];
+    } else {
+      data = unparsedData['data'];
+    }
+
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
-      throw CaptchaException(res.headers['X-Captcha-Sitekey'],
+      throw CaptchaException(res.headers['X-Captcha-Sitekey']!,
           message:
               'You need to solve a captcha, check `.sitekey` for the sitekey.');
     }
