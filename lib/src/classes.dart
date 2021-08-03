@@ -105,13 +105,13 @@ class Manga {
   final Map<String, dynamic>? chapters;
 
   /// the cover art, which is currently in use on the website
-  final String cover;
+  final String? cover;
 
   /// Manga author
-  final Author author;
+  final Author? author;
 
   /// Manga artist
-  final Author artist;
+  final Author? artist;
 
   Manga(
       {required this.id,
@@ -131,9 +131,9 @@ class Manga {
       this.releaseYear,
       this.status,
       this.chapters,
-      required this.cover,
-      required this.artist,
-      required this.author});
+      this.cover,
+      this.artist,
+      this.author});
 }
 
 /// Holds data about a MangaDex user

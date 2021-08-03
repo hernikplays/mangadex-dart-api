@@ -721,4 +721,62 @@ class MDClient {
     }
     return chapters;
   }
+
+  /// Returns [User] object containing info about the logged in user
+  ///
+  /// Returns [Null] if either no user is logged in or there is another error
+  Future<User?> loggedInUser() async {
+    if (token == '') return null;
+    var res =
+        await http.get(Uri.parse('https://api.mangadex.org/user/me'), headers: {
+      HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
+      HttpHeaders.authorizationHeader: 'Bearer: $token'
+    });
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    var data = jsonDecode(res.body)['data'];
+    return User(id: data['id'], username: data['attributes']['username']);
+  }
+
+  /// Returns a [List] of [Manga] of the currently logged in user
+  ///
+  /// If no user is logged in or user does not follow any manga, returns an empty list
+  Future<List<Manga>> followedManga() async {
+    if (token == '') return [];
+    var res = await http.get(
+        Uri.parse('https://api.mangadex.org/user/follows/manga'),
+        headers: {
+          HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
+          HttpHeaders.authorizationHeader: 'Bearer: $token'
+        });
+    var body = jsonDecode(res.body);
+    if (res.statusCode >= 400) throw 'Error: ${body['errors'][0]['detail']}';
+    var data = jsonDecode(res.body)['results'];
+    var mangaList = <Manga>[];
+    for (var manga in data) {
+      var r = manga['data'];
+      var a = r['attributes'];
+      mangaList.add(Manga(
+          altTitles: a['altTitles'],
+          title: a['title'],
+          description: a['description'],
+          isLocked: a['isLocked'],
+          links: a['links'],
+          originalLang: a['originalLanguage'],
+          lastChapter: a['lastChapter'],
+          lastVolume: a['lastVolume'],
+          demographic: a['publicationDemographic'],
+          status: a['status'],
+          releaseYear: a['year'],
+          contentRating: a['contentRating'],
+          tags: a['tags'],
+          createdAt: a['createdAt'],
+          updatedAt: a['updatedAt'],
+          id: r['id']));
+    }
+    return mangaList;
+  }
 }
