@@ -3,7 +3,6 @@ description: An unofficial MangaDex API wrapper for Dart/Flutter
 version: 1.0.0-dev.3
 repository: https://github.com/hernikplays/mangadex-dart-api
 issue_tracker: https://github.com/hernikplays/mangadex-dart-api/issues
-homepage: https://hernikplays.cz/mangadex-dart-api
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
