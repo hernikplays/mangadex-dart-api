@@ -36,5 +36,5 @@ If applicable, add screenshots to help explain your problem.
 **Additional context**
 Add any other context about the problem here.
 
-**Mark this:**
+**Check this:**
 - [ ] Yes, I have checked the internet and other bug reports for a solution and I believe I have not found one
