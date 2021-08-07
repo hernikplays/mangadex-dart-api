@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      MDEX: ${{ secrets.MD_PASS }}
 
     steps:
       - uses: actions/checkout@v2
@@ -26,7 +28,7 @@ jobs:
         run: dart analyze
 
       - name: Create dotenv
-        run: echo "MDPASS={{ secrets.MD_PASS }}" > .env
+        run: echo "MDPASS=$MDEX" > .env
 
       - name: Run tests
         run: dart test
