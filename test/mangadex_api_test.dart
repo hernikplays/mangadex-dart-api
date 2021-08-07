@@ -13,9 +13,7 @@ void main() {
 
       // slow down for rate limit
       var rng = Random();
-      await Future.delayed(Duration(seconds: rng.nextInt(6) + 3));
-
-      await client.login('4lomega', env['MDPASS']!);
+      await Future.delayed(Duration(seconds: rng.nextInt(2) + 3));
     });
 
     test('Get Individual Chapter Test', () async {
@@ -63,6 +61,7 @@ void main() {
     });
 
     test('Logged In User - Followed List Test', () async {
+      await client.login('4lomega', env['MDPASS']!);
       var followed = await client.followedManga();
       print(followed[0].title);
       expect(followed[0].title, 'Tensei Shitara Slime Datta Ken');
