@@ -25,5 +25,8 @@ jobs:
       - name: Analyze project source
         run: dart analyze
 
+      - name: Create dotenv
+        run: echo "{{ secrets.MD_PASS }}" > .env
+
       - name: Run tests
         run: dart test

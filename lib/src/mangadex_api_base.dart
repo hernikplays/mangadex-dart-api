@@ -47,15 +47,21 @@ class MDClient {
   /// ```
   Future<void> login(String username, String password) async {
     var res = await http.post(Uri.parse('https://api.mangadex.org/auth/login'),
-        body: '{"username":"$username","password":"$password"}',
+        body: jsonEncode({'username': '$username', 'password': '$password'}),
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
         });
-    if (res.statusCode == 401) {
-      throw 'User and Password does not match';
-    } else if (res.statusCode == 400) {
-      throw 'Bad request';
+    switch (res.statusCode) {
+      case 401:
+        throw 'User and Password does not match';
+      case 400:
+        throw 'Bad request';
+      case 429:
+        throw 'Ratelimit exceeded';
+
+      default:
+        break;
     }
     var data = jsonDecode(res.body);
 
@@ -75,7 +81,7 @@ class MDClient {
       throw 'Missing auth token or refresh token, make sure you logged in through the [login] function.';
     }
     http.post(Uri.parse('https://api.mangadex.org/auth/refresh'),
-        body: '"token":"$refresh"',
+        body: '{"token":"$refresh"}',
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
@@ -746,6 +752,16 @@ class MDClient {
   /// If no user is logged in or user does not follow any manga, returns an empty list
   Future<List<Manga>> followedManga() async {
     if (token == '') return [];
+
+    // check token with API
+    var checkToken = await http
+        .get(Uri.parse('https://api.mangadex.org/auth/check'), headers: {
+      HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
+      HttpHeaders.authorizationHeader: 'Bearer: $token'
+    });
+    if (checkToken.statusCode != 200 ||
+        !jsonDecode(checkToken.body)['isAuthenticated']) refreshToken();
+
     var res = await http.get(
         Uri.parse('https://api.mangadex.org/user/follows/manga'),
         headers: {
@@ -753,7 +769,9 @@ class MDClient {
           HttpHeaders.authorizationHeader: 'Bearer: $token'
         });
     var body = jsonDecode(res.body);
-    if (res.statusCode >= 400) throw 'Error: ${body['errors'][0]['detail']}';
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
     var data = jsonDecode(res.body)['results'];
     var mangaList = <Manga>[];
     for (var manga in data) {

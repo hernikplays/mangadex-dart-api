@@ -1,12 +1,21 @@
+import 'dart:math';
+
 import 'package:mangadex_api/mangadex_api.dart';
 import 'package:test/test.dart';
+import 'package:dotenv/dotenv.dart' show load, env;
 
 void main() {
   group('A group of tests', () {
     final client = MDClient();
 
-    setUp(() {
-      // Additional setup goes here.
+    setUp(() async {
+      load();
+
+      // slow down for rate limit
+      var rng = Random();
+      await Future.delayed(Duration(seconds: rng.nextInt(6) + 3));
+
+      await client.login('4lomega', env['MDPASS']!);
     });
 
     test('Get Individual Chapter Test', () async {
@@ -35,7 +44,7 @@ void main() {
       ], authors: [
         '7e552c08-f7cf-4e0e-9723-409d749dd77c'
       ]);
-      expect(manga[0].title['en'], 'Ijiranaide, Nagatoro-san');
+      expect(manga[0].title['jp'], 'Ijiranaide, Nagatoro-san');
     });
 
     test('Get User Test', () async {
@@ -51,6 +60,12 @@ void main() {
     test('Search Group Test', () async {
       var group = await client.searchGroups(name: 'Weebium');
       expect(group[0].leader.username, 'hernik');
+    });
+
+    test('Logged In User - Followed List Test', () async {
+      var followed = await client.followedManga();
+      print(followed[0].title);
+      expect(followed[0].title, 'Tensei Shitara Slime Datta Ken');
     });
   });
 }
