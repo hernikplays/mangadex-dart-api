@@ -104,6 +104,7 @@ class MDClient {
   Future<void> solveCaptcha(String captchaResult) async {
     var res;
     if (token != '') {
+      await validateToken();
       res = await http.post(
         Uri.parse('https://api.mangadex.org/auth/solve'),
         headers: {
@@ -158,6 +159,7 @@ class MDClient {
     );
 
     if (token != '' && useLogin) {
+      await validateToken();
       res = await http.get(uriParams, headers: {
         HttpHeaders.authorizationHeader: 'Bearer $token',
         HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
@@ -225,6 +227,7 @@ class MDClient {
       bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
+      await validateToken();
       res = await http.get(
           Uri.parse(
               'https://api.mangadex.org/manga/$uuid?includes[]=cover_art&includes[]=author&includes[]=artist'),
@@ -316,6 +319,8 @@ class MDClient {
       {bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
+      await validateToken();
+
       res = await http.get(
           Uri.parse('https://api.mangadex.org/cover?manga[]=$mangaUuid'),
           headers: {
@@ -364,6 +369,7 @@ class MDClient {
       bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
+      await validateToken();
       res = await http.get(
           Uri.parse(
               'https://api.mangadex.org/manga?title=&includes[]=author&includes[]=artist&includes[]=cover_art$mangaTitle${(authors.isNotEmpty) ? '&authors[]=${authors.join('&authors[]=')}' : ''}${(includedTags.isNotEmpty) ? '&includedTags[]=${includedTags.join('&includedTags[]=')}' : ''}${(excludedTags.isNotEmpty) ? '&excludedTags[]=${excludedTags.join('&excludedTags[]=')}' : ''}${(status.isNotEmpty) ? '&status[]=${status.join('&status[]=')}' : ''}${(demographic.isNotEmpty) ? '&publicationDemographic[]=${demographic.join('&publicationDemographic[]=')}' : ''}'),
@@ -453,6 +459,7 @@ class MDClient {
   Future<User?> getUser(String uuid, {bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
+      await validateToken();
       res = await http
           .get(Uri.parse('https://api.mangadex.org/user/$uuid'), headers: {
         HttpHeaders.authorizationHeader: 'Bearer $token',
@@ -484,6 +491,7 @@ class MDClient {
   Future<Group?> getGroup(String uuid, {bool useLogin = false}) async {
     var res;
     if (token != '' && useLogin) {
+      await validateToken();
       res = await http.get(
           Uri.parse(
               'https://api.mangadex.org/group/$uuid?includes[]=leader&includes[]=member'),
@@ -545,6 +553,7 @@ class MDClient {
       List<String> ids = const []}) async {
     var res;
     if (token != '' && useLogin) {
+      await validateToken();
       res = await http.get(
           Uri.parse(
               'https://api.mangadex.org/group?name=$name&includes[]=leader&includes[]=member${(ids.isNotEmpty) ? '&ids[]=${ids.join('&ids[]=')}' : ''}'),
@@ -602,7 +611,8 @@ class MDClient {
 
   /// Invalidates current sesssion
   Future<void> logout() async {
-    if (token == '') return;
+    var validate = await validateToken();
+    if (!validate) return;
     var res = await http
         .post(Uri.parse('https://api.mangadex.org/auth/logout'), headers: {
       HttpHeaders.authorizationHeader: 'Bearer $token',
@@ -627,7 +637,8 @@ class MDClient {
   Future<List<Chapter>> getMangaFeed() async {
     // ignore: omit_local_variable_types
     List<Chapter> chapters = [];
-    if (token == '') return chapters;
+    var validate = await validateToken();
+    if (!validate) return chapters;
     var res = await http.get(
         Uri.parse('https://api.mangadex.org/user/follows/manga/feed'),
         headers: {
@@ -666,10 +677,11 @@ class MDClient {
   ///
   /// Returns an empty [List] if no user is logged in
   Future<List<GenericObject>> getUsersLists() async {
-    if (token == '') return <GenericObject>[];
+    var validate = await validateToken();
+    if (!validate) return <GenericObject>[];
     var res = await http
         .get(Uri.parse('https://api.mangadex.org/user/list'), headers: {
-      HttpHeaders.authorizationHeader: 'Bearer: $token',
+      HttpHeaders.authorizationHeader: 'Bearer $token',
       HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
     });
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
@@ -694,11 +706,12 @@ class MDClient {
   /// a) CustomList was not found or you don't have access to it.
   /// b) You're not logged in
   Future<List<Chapter>> getListFeed(id) async {
-    if (token == '' || id == '') return <Chapter>[];
+    var validate = await validateToken();
+    if (!validate) <Chapter>[];
     var res = await http
         .get(Uri.parse('https://api.mangadex.org/list/$id/feed'), headers: {
       HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
-      HttpHeaders.authorizationHeader: 'Bearer: $token'
+      HttpHeaders.authorizationHeader: 'Bearer $token'
     });
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
       throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
@@ -732,11 +745,12 @@ class MDClient {
   ///
   /// Returns [Null] if either no user is logged in or there is another error
   Future<User?> loggedInUser() async {
-    if (token == '') return null;
+    var validate = await validateToken();
+    if (!validate) return null;
     var res =
         await http.get(Uri.parse('https://api.mangadex.org/user/me'), headers: {
       HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
-      HttpHeaders.authorizationHeader: 'Bearer: $token'
+      HttpHeaders.authorizationHeader: 'Bearer $token'
     });
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
       throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
@@ -751,29 +765,23 @@ class MDClient {
   ///
   /// If no user is logged in or user does not follow any manga, returns an empty list
   Future<List<Manga>> followedManga() async {
-    if (token == '') return [];
-
     // check token with API
-    var checkToken = await http
-        .get(Uri.parse('https://api.mangadex.org/auth/check'), headers: {
-      HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
-      HttpHeaders.authorizationHeader: 'Bearer: $token'
-    });
-    if (checkToken.statusCode != 200 ||
-        !jsonDecode(checkToken.body)['isAuthenticated']) refreshToken();
+    var validate = await validateToken();
+    if (!validate) return [];
+
+    var mangaList = <Manga>[];
 
     var res = await http.get(
         Uri.parse('https://api.mangadex.org/user/follows/manga'),
         headers: {
           HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
-          HttpHeaders.authorizationHeader: 'Bearer: $token'
+          HttpHeaders.authorizationHeader: 'Bearer $token'
         });
     var body = jsonDecode(res.body);
     if (res.statusCode >= 400) {
       throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
     }
     var data = jsonDecode(res.body)['results'];
-    var mangaList = <Manga>[];
     for (var manga in data) {
       var r = manga['data'];
       var a = r['attributes'];
@@ -796,5 +804,19 @@ class MDClient {
           id: r['id']));
     }
     return mangaList;
+  }
+
+  /// Validates token using the `/auth/check` endpoint
+  Future<bool> validateToken() async {
+    if (token == '' || refresh == '') return false;
+    var checkToken = await http
+        .get(Uri.parse('https://api.mangadex.org/auth/check'), headers: {
+      HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
+      HttpHeaders.authorizationHeader: 'Bearer $token'
+    });
+    if (checkToken.statusCode == 429) throw 'Ratelimit exceeded';
+    if (checkToken.statusCode != 200 ||
+        !jsonDecode(checkToken.body)['isAuthenticated']) refreshToken();
+    return true;
   }
 }
