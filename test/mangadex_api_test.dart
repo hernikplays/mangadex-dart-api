@@ -1,3 +1,4 @@
+@Timeout(Duration(seconds: 60))
 import 'dart:math';
 
 import 'package:mangadex_api/mangadex_api.dart';
@@ -13,7 +14,7 @@ void main() {
 
       // slow down for rate limit
       var rng = Random();
-      await Future.delayed(Duration(seconds: rng.nextInt(2) + 4));
+      await Future.delayed(Duration(seconds: rng.nextInt(2) + 3));
     });
 
     test('Get Individual Chapter Test', () async {

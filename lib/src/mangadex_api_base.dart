@@ -888,6 +888,9 @@ class MDClient {
     return Author(name: data['name'], biography: data['biography'], id: id);
   }
 
+  /// Returns logged in user's followed [Group]s as a [List]
+  ///
+  /// If no user is logged in or there are no followed groups, returns an empty [List]
   Future<List<Group>> followedGroups() async {
     var validate = await validateToken();
     if (!validate) return [];
