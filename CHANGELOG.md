@@ -28,4 +28,5 @@ For more changes check out the [documentation][doc]
 ## 1.0.0-dev.1
 
 - Initial version.
-[doc]:https://pub.dev/documentation/mangadex_api/latest/
+
+[doc]: https://pub.dev/documentation/mangadex_api/latest/
