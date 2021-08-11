@@ -1,3 +1,16 @@
+## 1.0.0
+- Manga class - cover is now nullable
+- Every function should throw exception in case of a 4xx or 5xx error
+- Better `getChapter` method, thanks to [#2](https://github.com/hernikplays/mangadex-dart-api/pull/2)
+- Functions now validate token using the `validateToken` function
+- Added `getUsersList` function
+- Added `getListFeed` function
+- Added `loggedInUser` function
+- Added `followedManga` function
+- Added `followedGroups` function
+
+
+For more changes check out the [GitHub diff](https://github.com/hernikplays/mangadex-dart-api/compare/1.0.0-dev2...1.0.0) and the [documentation][doc]
 ## 1.0.0-dev.2
 - Added User class and getUser function
 - Added checking for captcha on request
@@ -10,8 +23,9 @@
 - login now **returns a Future**
 - **changed in Chapter class: `chapter -> chapterNum` & `volume -> volumeNum`**
 
-For more changes check out the [documentation](https://hernikplays.cz/mangadex-dart-api/1.0.0-dev.2/mangadex_api/mangadex_api-library.html)
+For more changes check out the [documentation][doc]
 
 ## 1.0.0-dev.1
 
 - Initial version.
+[doc]:https://pub.dev/documentation/mangadex_api/latest/
