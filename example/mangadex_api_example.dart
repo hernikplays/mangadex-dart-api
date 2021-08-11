@@ -1,7 +1,7 @@
 import 'package:mangadex_api/mangadex_api.dart';
 
 void main() {
-  // the "I don't want to use async function" way
+  // Example usage of some functions
   var client = MDClient();
   client.login('user', 'pass').then((v) {
     client

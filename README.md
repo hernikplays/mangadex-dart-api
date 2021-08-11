@@ -30,24 +30,28 @@ If the server returns a captcha, the library will throw a [CaptchaException], wh
 
 ## What's implemented
 - Log-in
-- Get Chapters
-- Get Manga
-- Get cover
+- Getting Chapters
+- Getting Manga
+- Getting cover
 - Manga search
-- Get user
+- Getting user
 - Captcha
-- Get group
+- Getting group
 - Logged in user's followed manga chapter feed
+- Getting CustomList
+- Getting CustomList's chapter feed
+- Getting followed manga & group list
 
 
 ## What's NOT yet implemented
-- CustomLists
-- and a bunch of other stuff
+- Managing actions (Following, changing reading status etc.)
+- Creating accounts
+- And other stuff...
 
-Follow progress to the official 1.0.0 release [here](https://github.com/hernikplays/mangadex-dart-api/projects/1)
+**Don't forget to check the [docs](https://pub.dev/documentation/mangadex_api/latest/)**
 
 ## Features and bugs
 
-Please file feature requests and bugs at the [issue tracker][tracker].
+**Please file feature requests and bugs at the [issue tracker][tracker].**
 
 [tracker]: https://github.com/hernikplays/mangadex-dart-api/issues

@@ -13,7 +13,7 @@ void main() {
 
       // slow down for rate limit
       var rng = Random();
-      await Future.delayed(Duration(seconds: rng.nextInt(2) + 3));
+      await Future.delayed(Duration(seconds: rng.nextInt(2) + 4));
     });
 
     test('Get Individual Chapter Test', () async {
@@ -64,6 +64,12 @@ void main() {
       await client.login('4lomega', env['MDPASS']!);
       var followed = await client.followedManga();
       expect(followed[0].title['jp'], 'Tensei Shitara Slime Datta Ken');
+    });
+
+    test('Logged In User - Followed Groups Test', () async {
+      await client.login('4lomega', env['MDPASS']!);
+      var followed = await client.followedGroups();
+      expect(followed[0].name, 'Tempest');
     });
   });
 }

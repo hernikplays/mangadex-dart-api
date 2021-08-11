@@ -91,7 +91,7 @@ class MDClient {
         token = data['token']['session'];
         refresh = data['token']['refresh'];
       } else {
-        throw 'An error has happened: ${data["errors"][0]["title"]} - ${data["errors"][0]["detail"]}';
+        throw 'Error: ${data["errors"][0]["title"]} - ${data["errors"][0]["detail"]}';
       }
     });
   }
@@ -178,6 +178,10 @@ class MDClient {
     }
 
     var unparsedData = jsonDecode(res.body);
+    if (res.statusCode >= 400) {
+      throw 'Error: ${unparsedData['errors'][0]['detail']} - code ${res.statusCode}';
+    }
+
     Map<String, dynamic> data;
     if (unparsedData['data'] == null) {
       //print(unparsedData);
@@ -241,13 +245,19 @@ class MDClient {
               'https://api.mangadex.org/manga/$uuid?includes[]=cover_art&includes[]=author&includes[]=artist'),
           headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
     }
-    var body = jsonDecode(res.body);
-    var data = body['data'];
-    var relations = body['relationships'];
+
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
       throw CaptchaException(res.headers['X-Captcha-Sitekey'],
           message:
               'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    if (res.statusCode == 404) return null;
+    var body = jsonDecode(res.body);
+    var data = body['data'];
+    var relations = body['relationships'];
+
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
     }
     // ignore: omit_local_variable_types
     Map<String, dynamic> chapters = {};
@@ -335,11 +345,15 @@ class MDClient {
     if (res.statusCode == 404) {
       return null;
     }
-    var data = jsonDecode(res.body)['results'];
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
       throw CaptchaException(res.headers['X-Captcha-Sitekey'],
           message:
               'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    var body = jsonDecode(res.body);
+    var data = body['results'];
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
     }
     // ignore: omit_local_variable_types
     List<String> covers = [];
@@ -389,9 +403,9 @@ class MDClient {
           message:
               'You need to solve a captcha, check `.sitekey` for the sitekey.');
     }
-
-    if (res.statusCode == 400) {
-      throw 'Error: ${data["errors"][0]["title"]} - ${data["errors"][0]["detail"]}';
+    if (res.statusCode == 404) return [];
+    if (res.statusCode >= 400) {
+      throw 'Error: ${data['errors'][0]['detail']} - code ${res.statusCode}';
     }
 
     List<Manga>? results = [];
@@ -469,7 +483,6 @@ class MDClient {
       res = await http.get(Uri.parse('https://api.mangadex.org/user/$uuid'),
           headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
     }
-    var data = jsonDecode(res.body)['data'];
 
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
       throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
@@ -478,6 +491,11 @@ class MDClient {
     }
     if (res.statusCode == 404) {
       return null;
+    }
+    var body = jsonDecode(res.body);
+    var data = body['data'];
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
     }
     var user = User(id: data['id'], username: data['attributes']['username']);
     return user;
@@ -515,7 +533,9 @@ class MDClient {
     if (res.statusCode == 404) {
       return null;
     }
-
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
     var members = <User>[];
     var leader;
     for (var member in body['relationships']) {
@@ -572,9 +592,13 @@ class MDClient {
           message:
               'You need to solve a captcha, check `.sitekey` for the sitekey.');
     }
-    var data = jsonDecode(res.body)['results'];
-    // ignore: omit_local_variable_types
-    List<Group> groups = [];
+    var body = jsonDecode(res.body);
+    var data = body['results'];
+    if (res.statusCode == 404) return [];
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
+    var groups = <Group>[];
 
     for (var group in data) {
       var r = group['data'];
@@ -618,14 +642,15 @@ class MDClient {
       HttpHeaders.authorizationHeader: 'Bearer $token',
       HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
     });
-    var data = jsonDecode(res.body);
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
       throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
           message:
               'You need to solve a captcha, check `.sitekey` for the sitekey.');
     }
-    if (res.statusCode != 200) {
-      throw 'An error has happened: ${data["errors"][0]["title"]} - ${data["errors"][0]["detail"]}';
+    var body = jsonDecode(res.body);
+    var data = body['data'];
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
     }
     token = '';
     refresh = '';
@@ -635,8 +660,7 @@ class MDClient {
   ///
   /// If you did not login, this will return an empty [List]
   Future<List<Chapter>> getMangaFeed() async {
-    // ignore: omit_local_variable_types
-    List<Chapter> chapters = [];
+    var chapters = <Chapter>[];
     var validate = await validateToken();
     if (!validate) return chapters;
     var res = await http.get(
@@ -650,7 +674,11 @@ class MDClient {
           message:
               'You need to solve a captcha, check `.sitekey` for the sitekey.');
     }
-    var data = jsonDecode(res.body)['results'];
+    var body = jsonDecode(res.body);
+    var data = body['results'];
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
     for (var chapter in data) {
       var r = chapter['data'];
 
@@ -689,7 +717,11 @@ class MDClient {
           message:
               'You need to solve a captcha, check `.sitekey` for the sitekey.');
     }
-    var data = jsonDecode(res.body)['results'];
+    var body = jsonDecode(res.body);
+    var data = body['results'];
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
     var objects = <GenericObject>[];
     for (var result in data) {
       objects.add(GenericObject(
@@ -718,7 +750,11 @@ class MDClient {
           message:
               'You need to solve a captcha, check `.sitekey` for the sitekey.');
     }
-    var data = jsonDecode(res.body)['results'];
+    var body = jsonDecode(res.body);
+    var data = body['results'];
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
     var chapters = <Chapter>[];
     for (var chap in data) {
       var r = chap['data'];
@@ -757,7 +793,13 @@ class MDClient {
           message:
               'You need to solve a captcha, check `.sitekey` for the sitekey.');
     }
-    var data = jsonDecode(res.body)['data'];
+
+    var body = jsonDecode(res.body);
+    var data = body['data'];
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
+
     return User(id: data['id'], username: data['attributes']['username']);
   }
 
@@ -778,13 +820,33 @@ class MDClient {
           HttpHeaders.authorizationHeader: 'Bearer $token'
         });
     var body = jsonDecode(res.body);
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
     if (res.statusCode >= 400) {
       throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
     }
     var data = jsonDecode(res.body)['results'];
     for (var manga in data) {
       var r = manga['data'];
+      var cover = await getCovers(r['id']);
       var a = r['attributes'];
+
+      // find author and artist
+      var author, artist;
+      for (var autor in manga['relationships']) {
+        if (autor['type'] == 'author') {
+          await Future.delayed(Duration(seconds: 2));
+          author = await getAuthor(autor['id']);
+        }
+        if (autor['type'] == 'artist') {
+          await Future.delayed(Duration(seconds: 2));
+          artist = await getAuthor(autor['id']);
+        }
+      }
+
       mangaList.add(Manga(
           altTitles: a['altTitles'],
           title: a['title'],
@@ -801,9 +863,79 @@ class MDClient {
           tags: a['tags'],
           createdAt: a['createdAt'],
           updatedAt: a['updatedAt'],
-          id: r['id']));
+          id: r['id'],
+          cover: cover![0],
+          author: author,
+          artist: artist));
     }
     return mangaList;
+  }
+
+  /// Helper function to get [Author]/artist where reference expansion is not available
+  Future<Author> getAuthor(id) async {
+    var res = await http.get(Uri.parse('https://api.mangadex.org/author/$id'),
+        headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
+    var body = jsonDecode(res.body);
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
+    var data = body['data']['attributes'];
+    return Author(name: data['name'], biography: data['biography'], id: id);
+  }
+
+  Future<List<Group>> followedGroups() async {
+    var validate = await validateToken();
+    if (!validate) return [];
+
+    var res = await http.get(
+        Uri.parse('https://api.mangadex.org/user/follows/group'),
+        headers: {
+          HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
+          HttpHeaders.authorizationHeader: 'Bearer $token'
+        });
+    var body = jsonDecode(res.body);
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
+
+    var groups = <Group>[];
+    for (var group in body['results']) {
+      var r = group['data']['attributes'];
+
+      // Get leader/members
+      var members = <User>[];
+      var leader;
+      for (var member in group['relationships']) {
+        if (member['type'] == 'member') {
+          await Future.delayed(Duration(seconds: 2)); // slow down for ratelimit
+          members.add((await getUser(member[
+              'id']))!); // because ?includes throws an error on this endpoint, we get the member manually.
+        } else if (member['type'] == 'leader') {
+          leader = (await getUser(member['id']))!;
+        }
+      }
+
+      groups.add(Group(
+          name: r['name'],
+          id: group['data']['id'],
+          leader: leader,
+          createdAt: r['createdAt'],
+          updatedAt: r['updatedAt'],
+          isLocked: r['locked'],
+          members: members));
+    }
+
+    return groups;
   }
 
   /// Validates token using the `/auth/check` endpoint

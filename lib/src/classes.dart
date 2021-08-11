@@ -108,10 +108,10 @@ class Manga {
   final String? cover;
 
   /// Manga author
-  final Author? author;
+  final Author author;
 
   /// Manga artist
-  final Author? artist;
+  final Author artist;
 
   Manga(
       {required this.id,
@@ -132,8 +132,8 @@ class Manga {
       this.status,
       this.chapters,
       this.cover,
-      this.artist,
-      this.author});
+      required this.artist,
+      required this.author});
 }
 
 /// Holds data about a MangaDex user

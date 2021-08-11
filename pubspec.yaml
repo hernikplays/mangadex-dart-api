@@ -1,6 +1,6 @@
 name: mangadex_api
 description: An unofficial MangaDex API wrapper for Dart/Flutter
-version: 1.0.0-dev.3
+version: 1.0.0
 repository: https://github.com/hernikplays/mangadex-dart-api
 issue_tracker: https://github.com/hernikplays/mangadex-dart-api/issues
 
