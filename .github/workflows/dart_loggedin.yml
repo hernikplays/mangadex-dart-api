@@ -1,14 +1,14 @@
-name: Dart Test for Non-login endpoints
+name: Dart Test for login-only endpoints
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      MDEX: ${{ secrets.MD_PASS }}
 
     steps:
       - uses: actions/checkout@v2
@@ -25,5 +25,8 @@ jobs:
       - name: Analyze project source
         run: dart analyze
 
+      - name: Create dotenv
+        run: echo "MDPASS=$MDEX" > .env
+
       - name: Run tests
-        run: dart test ./tetst/normal_test.dart
+        run: dart test ./tetst/logged_in_test.dart

@@ -954,4 +954,63 @@ class MDClient {
         !jsonDecode(checkToken.body)['isAuthenticated']) refreshToken();
     return true;
   }
+
+  /// Creates a customlist for the logged in user
+  ///
+  /// Throws an exception if something goes wrong
+  ///
+  /// Returns the customlist's ID as [String]
+  Future<String> createCustomList(String name,
+      {bool isPublic = true, List<String> mangaUuids = const []}) async {
+    var refresh = await validateToken();
+    if (!refresh) throw 'You are not logged in';
+
+    var res = await http.post(Uri.parse('https://api.mangadex.org/list'),
+        headers: {
+          HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
+          HttpHeaders.authorizationHeader: 'Bearer $token',
+          HttpHeaders.contentTypeHeader: 'application/json'
+        },
+        body: jsonEncode({
+          'name': name,
+          'manga': mangaUuids,
+          'visibility': (isPublic) ? 'public' : 'private'
+        }));
+
+    var body = jsonDecode(res.body);
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
+
+    return body['data']['id'];
+  }
+
+  /// Deletes the customlist by ID
+  ///
+  /// Throws exception if something goes wrong
+  Future<void> deleteCustomList(String id) async {
+    var refresh = await validateToken();
+    if (!refresh) throw 'You are not logged in';
+
+    var res = await http
+        .delete(Uri.parse('https://api.mangadex.org/list/$id'), headers: {
+      HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
+      HttpHeaders.authorizationHeader: 'Bearer $token',
+    });
+
+    var body = jsonDecode(res.body);
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
+  }
 }

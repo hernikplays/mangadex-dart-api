@@ -60,17 +60,5 @@ void main() {
       var group = await client.searchGroups(name: 'Weebium');
       expect(group[0].leader.username, 'hernik');
     });
-
-    test('Logged In User - Followed List Test', () async {
-      await client.login('4lomega', env['MDPASS']!);
-      var followed = await client.followedManga();
-      expect(followed[0].title['jp'], 'Tensei Shitara Slime Datta Ken');
-    });
-
-    test('Logged In User - Followed Groups Test', () async {
-      await client.login('4lomega', env['MDPASS']!);
-      var followed = await client.followedGroups();
-      expect(followed[0].name, 'Tempest');
-    });
   });
 }
