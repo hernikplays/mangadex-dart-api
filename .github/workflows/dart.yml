@@ -26,4 +26,4 @@ jobs:
         run: dart analyze
 
       - name: Run tests
-        run: dart test ./tetst/normal_test.dart
+        run: dart test ./test/normal_test.dart
