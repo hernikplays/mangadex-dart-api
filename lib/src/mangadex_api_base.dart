@@ -659,12 +659,18 @@ class MDClient {
   /// Returns the latest chapters of the currently logged in user's followed manga
   ///
   /// If you did not login, this will return an empty [List]
-  Future<List<Chapter>> getMangaFeed() async {
+  ///
+  /// If `translatedLanguages` is left empty, gets chapters in all languages
+  Future<List<Chapter>> getMangaFeed(
+      {List<String> translatedLanguages = const []}) async {
     var chapters = <Chapter>[];
     var validate = await validateToken();
     if (!validate) return chapters;
+    final queryParams = {
+      'translatedLanguage': translatedLanguages,
+    }..removeWhere((key, value) => value.isNotEmpty);
     var res = await http.get(
-        Uri.parse('https://api.mangadex.org/user/follows/manga/feed'),
+        Uri.https('api.mangadex.org', '/user/follows/manga/feed', queryParams),
         headers: {
           HttpHeaders.authorizationHeader: 'Bearer $token',
           HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'
@@ -685,12 +691,11 @@ class MDClient {
       var getme = await generateChapter(r);
       var normalChapter = getme['normal']!;
       var saverChapter = getme['saver']!;
-
       chapters.add(Chapter(
           chapterURLs: normalChapter,
           dataSaverChapterURLs: saverChapter,
           id: r['id'],
-          title: r['attributes']['title'],
+          title: r['attributes']['title'] ?? 'None',
           translatedLanguage: r['attributes']['translatedLanguage'],
           volumeNum: r['attributes']['volume'],
           chapterNum: r['attributes']['chapter'],
