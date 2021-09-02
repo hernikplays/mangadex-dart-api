@@ -819,7 +819,8 @@ class MDClient {
     var mangaList = <Manga>[];
 
     var res = await http.get(
-        Uri.parse('https://api.mangadex.org/user/follows/manga'),
+        Uri.parse(
+            'https://api.mangadex.org/user/follows/manga?includes[]=cover_art&includes[]=author&includes[]=artist'),
         headers: {
           HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
           HttpHeaders.authorizationHeader: 'Bearer $token'
@@ -836,19 +837,33 @@ class MDClient {
     var data = jsonDecode(res.body)['results'];
     for (var manga in data) {
       var r = manga['data'];
-      var cover = await getCovers(r['id']);
+      var cover;
       var a = r['attributes'];
 
       // find author and artist
       var author, artist;
-      for (var autor in manga['relationships']) {
-        if (autor['type'] == 'author') {
-          await Future.delayed(Duration(seconds: 2));
-          author = await getAuthor(autor['id']);
-        }
-        if (autor['type'] == 'artist') {
-          await Future.delayed(Duration(seconds: 2));
-          artist = await getAuthor(autor['id']);
+      for (var rel in manga['relationships']) {
+        switch (rel['type']) {
+          case 'author':
+            author = Author(
+                name: rel['attributes']['name'],
+                id: rel['id'],
+                biography: rel['attributes']['biography'],
+                imageUrl: rel['attributes']['imageUrl']);
+            break;
+          case 'artist':
+            artist = Author(
+                name: rel['attributes']['name'],
+                id: rel['id'],
+                imageUrl: rel['attributes']['imageUrl'],
+                biography: rel['attributes']['biography']);
+            break;
+          case 'cover_art':
+            cover =
+                'https://uploads.mangadex.org/covers/${r['id']}/${rel['attributes']['fileName']}';
+            break;
+          default:
+            break;
         }
       }
 
@@ -869,14 +884,14 @@ class MDClient {
           createdAt: a['createdAt'],
           updatedAt: a['updatedAt'],
           id: r['id'],
-          cover: cover![0],
+          cover: cover,
           author: author,
           artist: artist));
     }
     return mangaList;
   }
 
-  /// Helper function to get [Author]/artist where reference expansion is not available
+  /*/// Helper function to get [Author]/artist where reference expansion is not available
   Future<Author> getAuthor(id) async {
     var res = await http.get(Uri.parse('https://api.mangadex.org/author/$id'),
         headers: {HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0'});
@@ -891,7 +906,7 @@ class MDClient {
     }
     var data = body['data']['attributes'];
     return Author(name: data['name'], biography: data['biography'], id: id);
-  }
+  }*/
 
   /// Returns logged in user's followed [Group]s as a [List]
   ///
@@ -901,7 +916,8 @@ class MDClient {
     if (!validate) return [];
 
     var res = await http.get(
-        Uri.parse('https://api.mangadex.org/user/follows/group'),
+        Uri.parse(
+            'https://api.mangadex.org/user/follows/group?includes[]=leader&includes[]=member'),
         headers: {
           HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
           HttpHeaders.authorizationHeader: 'Bearer $token'
@@ -925,11 +941,11 @@ class MDClient {
       var leader;
       for (var member in group['relationships']) {
         if (member['type'] == 'member') {
-          await Future.delayed(Duration(seconds: 2)); // slow down for ratelimit
-          members.add((await getUser(member[
-              'id']))!); // because ?includes throws an error on this endpoint, we get the member manually.
+          members.add(User(
+              id: member['id'], username: member['attributes']['username']));
         } else if (member['type'] == 'leader') {
-          leader = (await getUser(member['id']))!;
+          leader = User(
+              id: member['id'], username: member['attributes']['username']);
         }
       }
 
