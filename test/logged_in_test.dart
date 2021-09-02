@@ -38,6 +38,10 @@ void main() {
     test('Logged In User - Custom List Test', () async {
       await client.login('4lomega', env['MDPASS']!);
       var id = await client.createCustomList('testing list');
+      await client.addToCustomList(id, 'c2390196-0ad7-4b90-9019-c23c000eec78');
+      await Future.delayed(Duration(seconds: 2));
+      await client.removeFromCustomList(
+          id, 'c2390196-0ad7-4b90-9019-c23c000eec78');
       await client.deleteCustomList(id);
     });
   });

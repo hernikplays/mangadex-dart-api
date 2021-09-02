@@ -1034,4 +1034,54 @@ class MDClient {
       throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
     }
   }
+
+  /// Adds a manga (specified by its ID) to the custom list specified by its ID
+  ///
+  /// Throws an [Exception] in case of an error
+  Future<void> addToCustomList(String customListId, String mangaId) async {
+    var refresh = await validateToken();
+    if (!refresh) throw 'You are not logged in';
+
+    var res = await http.post(
+        Uri.parse('https://api.mangadex.org/manga/$mangaId/list/$customListId'),
+        headers: {
+          HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
+          HttpHeaders.authorizationHeader: 'Bearer $token',
+        });
+
+    var body = jsonDecode(res.body);
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
+  }
+
+  /// Removes a manga (specified by its ID) from the custom list specified by its ID
+  ///
+  /// Throws an [Exception] in case of an error
+  Future<void> removeFromCustomList(String customListId, String mangaId) async {
+    var refresh = await validateToken();
+    if (!refresh) throw 'You are not logged in';
+
+    var res = await http.delete(
+        Uri.parse('https://api.mangadex.org/manga/$mangaId/list/$customListId'),
+        headers: {
+          HttpHeaders.userAgentHeader: 'mangadex_dart_api/1.0',
+          HttpHeaders.authorizationHeader: 'Bearer $token',
+        });
+
+    var body = jsonDecode(res.body);
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
+  }
 }
