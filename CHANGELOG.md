@@ -1,3 +1,10 @@
+## 1.0.1
+- Add `translatedLanguage` to `getMangaFeed`
+- Add reference expansion to `followedManga` and `followedGroups`
+- Add `createCustomList`, `deleteCustomList`, `addToCustomList` and `removeFromCustomList`
+
+For more changes check out the [GitHub diff](https://github.com/hernikplays/mangadex-dart-api/compare/d4edb8eb8e40e5b0f0a16cc53031728d988fb3c7..44e5bd1601116fdf38292db6dc9cdf2e1f9ab75a) and the [documentation][doc]
+
 ## 1.0.0
 - Manga class - cover is now nullable
 - Every function should throw exception in case of a 4xx or 5xx error
