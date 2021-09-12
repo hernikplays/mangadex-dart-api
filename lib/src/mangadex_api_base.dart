@@ -183,13 +183,13 @@ class MDClient {
     }
 
     Map<String, dynamic> data;
-    if (unparsedData['data'] == null) {
+    if (unparsedData['data'] is List) {
       //print(unparsedData);
       final resultsList = List.from(unparsedData['results']);
       data = resultsList[0]['data'];
       // data = unparsedData['results']['0']['data'];
     } else {
-      data = Map.from(List.from(unparsedData['data'])[0]);
+      data = Map.from(unparsedData['data']);
     }
 
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
