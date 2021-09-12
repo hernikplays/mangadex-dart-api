@@ -20,7 +20,7 @@ void main() {
     test('Logged In User - Followed List Test', () async {
       await client.login('4lomega', env['MDPASS']!);
       var followed = await client.followedManga();
-      expect(followed[0].title['jp'], 'Tensei Shitara Slime Datta Ken');
+      expect(followed[1].title['en'], 'Tensei Shitara Slime Datta Ken');
     });
 
     test('Logged In User - Followed Groups Test', () async {

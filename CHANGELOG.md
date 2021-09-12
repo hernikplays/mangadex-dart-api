@@ -1,3 +1,6 @@
+## 1.0.2
+- Fixes [#3](https://github.com/hernikplays/mangadex-dart-api/issues/3)
+
 ## 1.0.1
 - Add `translatedLanguage` to `getMangaFeed`
 - Add reference expansion to `followedManga` and `followedGroups`

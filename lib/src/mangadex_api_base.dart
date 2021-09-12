@@ -189,7 +189,7 @@ class MDClient {
       data = resultsList[0]['data'];
       // data = unparsedData['results']['0']['data'];
     } else {
-      data = unparsedData['data'];
+      data = Map.from(List.from(unparsedData['data'])[0]);
     }
 
     if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
@@ -254,7 +254,7 @@ class MDClient {
     if (res.statusCode == 404) return null;
     var body = jsonDecode(res.body);
     var data = body['data'];
-    var relations = body['relationships'];
+    var relations = body['data']['relationships'];
 
     if (res.statusCode >= 400) {
       throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
@@ -411,7 +411,7 @@ class MDClient {
     List<Manga>? results = [];
     for (var manga in data['results']) {
       var r = manga['data'];
-      var relations = manga['relationships'];
+      var relations = manga['data']['relationships'];
       var cover, author, artist;
       for (var rel in relations) {
         switch (rel['type']) {
@@ -538,7 +538,7 @@ class MDClient {
     }
     var members = <User>[];
     var leader;
-    for (var member in body['relationships']) {
+    for (var member in data['relationships']) {
       if (member['type'] == 'member') {
         members.add(
             User(id: member['id'], username: member['attributes']['username']));
@@ -605,7 +605,7 @@ class MDClient {
 
       var members = <User>[];
       var leader;
-      for (var member in group['relationships']) {
+      for (var member in r['relationships']) {
         if (member['type'] == 'member') {
           members.add(User(
               id: member['id'], username: member['attributes']['username']));
@@ -842,7 +842,7 @@ class MDClient {
 
       // find author and artist
       var author, artist;
-      for (var rel in manga['relationships']) {
+      for (var rel in r['relationships']) {
         switch (rel['type']) {
           case 'author':
             author = Author(
@@ -939,7 +939,7 @@ class MDClient {
       // Get leader/members
       var members = <User>[];
       var leader;
-      for (var member in group['relationships']) {
+      for (var member in group['data']['relationships']) {
         if (member['type'] == 'member') {
           members.add(User(
               id: member['id'], username: member['attributes']['username']));
