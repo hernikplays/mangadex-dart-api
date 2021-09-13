@@ -1125,4 +1125,69 @@ class MDClient {
       throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
     }
   }
+
+  /// Follows a Manga as the logged in user
+  ///
+  /// Throws an [Exception] if something goes wrong
+  Future<void> followManga(String id) async {
+    var refresh = await validateToken();
+    if (!refresh) throw 'You are not logged in';
+
+    var res =
+        await http.post(Uri.parse('https://api.mangadex.org/manga/$id/follow'));
+
+    var body = jsonDecode(res.body);
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
+  }
+
+  /// Unfollows a Manga as the logged in user
+  ///
+  /// Throws an [Exception] if something goes wrong
+  Future<void> unfollowManga(String id) async {
+    var refresh = await validateToken();
+    if (!refresh) throw 'You are not logged in';
+
+    var res = await http
+        .delete(Uri.parse('https://api.mangadex.org/manga/$id/follow'));
+
+    var body = jsonDecode(res.body);
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
+  }
+
+  /// Allows you to update the reading status of a certain manga
+  /// Throws an [Exception] if something goes wrong
+  ///
+  /// Use [ReadingStatus] class to get all available reading statuses
+  Future<void> setReadingStatus(String id, String readingStatus) async {
+    var refresh = await validateToken();
+    if (!refresh) throw 'You are not logged in';
+
+    var res = await http.post(
+        Uri.parse('https://api.mangadex.org/manga/$id/status'),
+        body: jsonEncode({'status': readingStatus}));
+
+    var body = jsonDecode(res.body);
+    if (res.statusCode == 403 && res.headers['X-Captcha-Sitekey'] != null) {
+      throw CaptchaException(res.headers['X-Captcha-Sitekey'].toString(),
+          message:
+              'You need to solve a captcha, check `.sitekey` for the sitekey.');
+    }
+    if (res.statusCode >= 400) {
+      throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
+    }
+  }
 }

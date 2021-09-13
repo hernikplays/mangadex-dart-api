@@ -255,3 +255,13 @@ class GenericObject {
 
   GenericObject({required this.id, this.title, this.type});
 }
+
+/// All MangaDex reading statuses
+class ReadingStatus {
+  static final String READING = 'reading';
+  static final String PAUSED = 'on_hold';
+  static final String PLANNING = 'plan_to_read';
+  static final String DROPPED = 'dropped';
+  static final String REREADING = 're_reading';
+  static final String COMPLETED = 'completed';
+}
