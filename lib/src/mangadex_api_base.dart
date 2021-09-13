@@ -548,7 +548,7 @@ class MDClient {
         members.add(User(
             id: member['id'],
             username: member['attributes']['username'],
-            roles: data['attributes']['roles']
+            roles: member['attributes']['roles']
                 .map((r) => r.replaceAll('ROLE_', ''))
                 .toList()
                 .cast<String>()));
@@ -1178,6 +1178,7 @@ class MDClient {
 
     var res = await http.post(
         Uri.parse('https://api.mangadex.org/manga/$id/status'),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
         body: jsonEncode({'status': readingStatus}));
 
     var body = jsonDecode(res.body);

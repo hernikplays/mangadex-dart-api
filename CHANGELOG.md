@@ -1,3 +1,12 @@
+## 1.0.3
+- Hopefully fixes [#3](https://github.com/hernikplays/mangadex-dart-api/issues/3) for now
+- Added `ReadingStatus` class
+- Added `roles` to `User`
+- Added `followManga` and `unfollowManga`
+- Added `setReadingStatus`
+
+For more changes check out the [GitHub diff](https://github.com/hernikplays/mangadex-dart-api/compare/290764345e61dc9906c41dc7f24c5caeb690b808..714c1668d0891a6dabda064b0e788f8b1d6ac84b) and the [documentation][doc]
+
 ## 1.0.2
 - Fixes [#3](https://github.com/hernikplays/mangadex-dart-api/issues/3)
 
