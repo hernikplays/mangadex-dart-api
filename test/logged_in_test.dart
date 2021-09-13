@@ -27,12 +27,7 @@ void main() {
       await client.login('4lomega', env['MDPASS']!);
       var followed = await client.followedGroups();
       expect(followed[0].name, 'Tempest');
-    });
-
-    test('Logged In User - Followed Groups Test', () async {
-      await client.login('4lomega', env['MDPASS']!);
-      var followed = await client.followedGroups();
-      expect(followed[0].name, 'Tempest');
+      expect(followed[0].leader.roles[2], 'GROUP_LEADER');
     });
 
     test('Logged In User - Custom List Test', () async {

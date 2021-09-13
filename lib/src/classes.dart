@@ -143,7 +143,11 @@ class User {
 
   /// User's ID
   final String id;
-  User({required this.username, required this.id});
+
+  /// User's roles
+  final List<String> roles;
+
+  User({required this.username, required this.id, required this.roles});
 }
 
 /// Exception thrown when the API server returns a 403 error requiring completion of a captcha

@@ -184,9 +184,8 @@ class MDClient {
 
     Map<String, dynamic> data;
     if (unparsedData['data'] is List) {
-      //print(unparsedData);
-      final resultsList = List.from(unparsedData['results']);
-      data = resultsList[0]['data'];
+      final resultsList = List.from(unparsedData['data']);
+      data = resultsList[0];
       // data = unparsedData['results']['0']['data'];
     } else {
       data = Map.from(unparsedData['data']);
@@ -409,9 +408,9 @@ class MDClient {
     }
 
     List<Manga>? results = [];
-    for (var manga in data['results']) {
-      var r = manga['data'];
-      var relations = manga['data']['relationships'];
+    for (var manga in data['data']) {
+      var r = manga;
+      var relations = manga['relationships'];
       var cover, author, artist;
       for (var rel in relations) {
         switch (rel['type']) {
@@ -497,7 +496,13 @@ class MDClient {
     if (res.statusCode >= 400) {
       throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
     }
-    var user = User(id: data['id'], username: data['attributes']['username']);
+    var user = User(
+        id: data['id'],
+        username: data['attributes']['username'],
+        roles: data['attributes']['roles']
+            .map((r) => r.replaceAll('ROLE_', ''))
+            .toList()
+            .cast<String>());
     return user;
   }
 
@@ -540,11 +545,21 @@ class MDClient {
     var leader;
     for (var member in data['relationships']) {
       if (member['type'] == 'member') {
-        members.add(
-            User(id: member['id'], username: member['attributes']['username']));
+        members.add(User(
+            id: member['id'],
+            username: member['attributes']['username'],
+            roles: data['attributes']['roles']
+                .map((r) => r.replaceAll('ROLE_', ''))
+                .toList()
+                .cast<String>()));
       } else if (member['type'] == 'leader') {
-        leader =
-            User(id: member['id'], username: member['attributes']['username']);
+        leader = User(
+            id: member['id'],
+            username: member['attributes']['username'],
+            roles: data['attributes']['roles']
+                .map((r) => r.replaceAll('ROLE_', ''))
+                .toList()
+                .cast<String>());
       }
     }
 
@@ -593,7 +608,7 @@ class MDClient {
               'You need to solve a captcha, check `.sitekey` for the sitekey.');
     }
     var body = jsonDecode(res.body);
-    var data = body['results'];
+    var data = body['data'];
     if (res.statusCode == 404) return [];
     if (res.statusCode >= 400) {
       throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
@@ -601,17 +616,27 @@ class MDClient {
     var groups = <Group>[];
 
     for (var group in data) {
-      var r = group['data'];
+      var r = group;
 
       var members = <User>[];
       var leader;
       for (var member in r['relationships']) {
         if (member['type'] == 'member') {
           members.add(User(
-              id: member['id'], username: member['attributes']['username']));
+              id: member['id'],
+              username: member['attributes']['username'],
+              roles: member['attributes']['roles']
+                  .map((r) => r.replaceAll('ROLE_', ''))
+                  .toList()
+                  .cast<String>()));
         } else if (member['type'] == 'leader') {
           leader = User(
-              id: member['id'], username: member['attributes']['username']);
+              id: member['id'],
+              username: member['attributes']['username'],
+              roles: member['attributes']['roles']
+                  .map((r) => r.replaceAll('ROLE_', ''))
+                  .toList()
+                  .cast<String>());
         }
       }
       groups.add(Group(
@@ -805,7 +830,13 @@ class MDClient {
       throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
     }
 
-    return User(id: data['id'], username: data['attributes']['username']);
+    return User(
+        id: data['id'],
+        username: data['attributes']['username'],
+        roles: data['attributes']['roles']
+            .map((r) => r.replaceAll('ROLE_', ''))
+            .toList()
+            .cast<String>());
   }
 
   /// Returns a [List] of [Manga] of the currently logged in user
@@ -834,9 +865,9 @@ class MDClient {
     if (res.statusCode >= 400) {
       throw 'Error: ${body['errors'][0]['detail']} - code ${res.statusCode}';
     }
-    var data = jsonDecode(res.body)['results'];
+    var data = jsonDecode(res.body)['data'];
     for (var manga in data) {
-      var r = manga['data'];
+      var r = manga;
       var cover;
       var a = r['attributes'];
 
@@ -933,25 +964,35 @@ class MDClient {
     }
 
     var groups = <Group>[];
-    for (var group in body['results']) {
-      var r = group['data']['attributes'];
+    for (var group in body['data']) {
+      var r = group['attributes'];
 
       // Get leader/members
       var members = <User>[];
       var leader;
-      for (var member in group['data']['relationships']) {
+      for (var member in group['relationships']) {
         if (member['type'] == 'member') {
           members.add(User(
-              id: member['id'], username: member['attributes']['username']));
+              id: member['id'],
+              username: member['attributes']['username'],
+              roles: member['attributes']['roles']
+                  .map((r) => r.replaceAll('ROLE_', ''))
+                  .toList()
+                  .cast<String>()));
         } else if (member['type'] == 'leader') {
           leader = User(
-              id: member['id'], username: member['attributes']['username']);
+              id: member['id'],
+              username: member['attributes']['username'],
+              roles: member['attributes']['roles']
+                  .map((r) => r.replaceAll('ROLE_', ''))
+                  .toList()
+                  .cast<String>());
         }
       }
 
       groups.add(Group(
           name: r['name'],
-          id: group['data']['id'],
+          id: group['id'],
           leader: leader,
           createdAt: r['createdAt'],
           updatedAt: r['updatedAt'],
