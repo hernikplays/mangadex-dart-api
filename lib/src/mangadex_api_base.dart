@@ -983,10 +983,13 @@ class MDClient {
           leader = User(
               id: member['id'],
               username: member['attributes']['username'],
-              roles: member['attributes']['roles']
-                  .map((r) => r.replaceAll('ROLE_', ''))
-                  .toList()
-                  .cast<String>());
+              roles: (member['attributes']['roles'] == null ||
+                      member['attributes']['roles'].length == 0)
+                  ? <String>[]
+                  : member['attributes']['roles']
+                      .map((r) => r.replaceAll('ROLE_', ''))
+                      .toList()
+                      .cast<String>());
         }
       }
 
